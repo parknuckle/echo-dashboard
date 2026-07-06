@@ -71,14 +71,48 @@ function updateClock() {
 
 async function loadWeather() {
 
-    const url =
-`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=sunrise&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
-
+  const url =
+`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
     try {
 
         const response = await fetch(url);
 
         const data = await response.json();
+
+    // ===========================
+// HOURLY FORECAST
+// ===========================
+
+// Current hour
+const now = new Date();
+const currentHour = now.getHours();
+
+// Find the current hour in the API data
+const startIndex = data.hourly.time.findIndex(time => {
+    return new Date(time).getHours() === currentHour;
+});
+
+// Update the next four hours
+for (let i = 1; i <= 4; i++) {
+
+    const index = startIndex + i;
+
+    const hour = new Date(data.hourly.time[index]);
+
+    const hourText = hour.toLocaleTimeString([], {
+        hour: "numeric"
+    });
+
+    document.getElementById(`hour${i}-time`).textContent =
+        hourText;
+
+    document.getElementById(`hour${i}-temp`).textContent =
+        Math.round(data.hourly.temperature_2m[index]) + "°";
+
+    document.getElementById(`hour${i}-icon`).textContent =
+        weatherDescription(data.hourly.weather_code[index]).split(" ")[0];
+
+}    
 
        // Temperature
 document.getElementById("temp").textContent =

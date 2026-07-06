@@ -20,9 +20,9 @@ body {
 }
 
 .topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    align-items:start;
 }
 
 #time{
@@ -52,9 +52,9 @@ body {
     margin:25px 0;
     border-radius:30px;
     background:#162133;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+
+    position:relative;
+    overflow:hidden;
 }
 
 .placeholder{
@@ -62,11 +62,11 @@ body {
     color:#6fb6ff;
     letter-spacing:3px;
 }
-.radar-container {
-    flex: 1;
-    overflow: hidden;
-    border-radius: 24px;
-    background: #111;
+.radar-container{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    border-radius:24px;
 }
 
 #radarFrame {
@@ -85,4 +85,125 @@ body {
     margin-top: 6px;
     font-size: 24px;
     color: #9fb3c8;
+}
+/* ===========================
+   Content Stage
+=========================== */
+
+#content-stage{
+    position:absolute;
+    inset:0;
+}
+
+/* Every screen occupies the same space */
+
+.screen {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity .8s ease,
+        visibility .8s ease;
+}
+
+/* Only the active screen is visible */
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Keep the radar filling the panel */
+
+#radar-screen {
+    width: 100%;
+    height: 100%;
+}
+/* ===========================
+   Forecast Strip
+=========================== */
+
+.forecast-strip{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:34px;
+
+    width:100%;
+}
+.forecast-item{
+    text-align:center;
+    min-width:60px;
+}
+
+.forecast-time{
+    font-size:18px;
+    color:#9fb3c8;
+    margin-bottom:6px;
+}
+
+.forecast-icon{
+    font-size:28px;
+    margin-bottom:6px;
+}
+
+.forecast-temp{
+    font-size:24px;
+    font-weight:600;
+}
+/* ===========================
+   NOW CARD
+=========================== */
+
+.now-card{
+
+    position:absolute;
+
+    left:30px;
+
+    bottom:30px;
+
+    background:rgba(12,20,35,.80);
+
+    backdrop-filter:blur(12px);
+
+    border-radius:18px;
+
+    padding:18px 24px;
+
+    min-width:170px;
+
+    z-index:100;
+}
+
+.now-label{
+
+    color:#9fb3c8;
+
+    font-size:14px;
+
+    letter-spacing:2px;
+
+    margin-bottom:8px;
+}
+
+.now-card #temp{
+
+    font-size:46px;
+
+    font-weight:700;
+
+    text-align:left;
+}
+
+.now-card #conditions{
+
+    font-size:22px;
+
+    color:#c7d5e4;
+
+    text-align:left;
 }

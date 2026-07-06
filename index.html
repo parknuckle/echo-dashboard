@@ -17,23 +17,81 @@
             <div id="location">Corning, NY</div>
         </div>
 
-        <div class="weather">
-    <div id="temp">--°</div>
-    <div id="conditions">Loading...</div>
+       <div class="forecast-strip">
+
+   <div class="forecast-item">
+
+    <div class="forecast-time" id="hour1-time">5 PM</div>
+    <div class="forecast-icon" id="hour1-icon">☀️</div>
+    <div class="forecast-temp" id="hour1-temp">79°</div>
+
+</div>
+
+    <div class="forecast-item">
+        <div class="forecast-time" id="hour2-time">6 PM</div>
+        <div class="forecast-icon" id="hour2-icon">🌤</div>
+        <div class="forecast-temp" id="hour2-temp">77°</div>
+    
+    </div>
+
+    <div class="forecast-item">
+        <div class="forecast-time" id="hour3-time">7 PM</div>
+        <div class="forecast-icon" id="hour3-icon">🌧</div>
+        <div class="forecast-temp" id="hour3-temp">74°</div>
+    </div>
+
+    <div class="forecast-item">
+        <div class="forecast-time" id="hour4-time">8 PM</div>
+        <div class="forecast-icon" id="hour4-icon">🌧</div>
+        <div class="forecast-temp" id="hour4-temp">72°</div>    
+    </div>
+
 </div>
     </header>
 
-    <main class="content">
+   <main class="content">
 
-       <div class="radar-container">
-    <iframe
-        id="radarFrame"
-        src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,7&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
-        frameborder="0">
-    </iframe>
-</div>
+    <div id="content-stage">
 
-    </main>
+        <!-- Screen 1 -->
+        <div class="screen active" id="radar-screen">
+            <div class="radar-container">
+                <iframe
+                    id="radarFrame"
+                    src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,7&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
+                    frameborder="0">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Screen 2 -->
+        <div class="screen" id="hourly-screen">
+            <h2>Hourly Forecast</h2>
+            <p>Coming Soon...</p>
+        </div>
+
+        <!-- Screen 3 -->
+        <div class="screen" id="daily-screen">
+            <h2>10-Day Forecast</h2>
+            <p>Coming Soon...</p>
+        </div>
+
+    </div>
+
+      <!-- NOW CARD -->
+    <div class="now-card">
+
+        <div class="now-label">NOW</div>
+
+        <div id="temp">--°</div>
+
+        <div id="conditions">Loading...</div>
+
+    </div>
+
+</main>
+
+
 
     <footer class="bottombar">
     <span id="wind">💨 Wind --</span>
