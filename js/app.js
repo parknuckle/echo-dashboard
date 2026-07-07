@@ -159,3 +159,36 @@ setInterval(updateClock, 1000);
 
 loadWeather();
 setInterval(loadWeather, 10 * 60 * 1000);
+// ===========================
+// FULLSCREEN
+// ===========================
+
+const fsButton = document.getElementById("fullscreen-btn");
+
+if (fsButton){
+
+    fsButton.addEventListener("click", async () => {
+
+        try{
+
+            if(!document.fullscreenElement){
+
+                await document.documentElement.requestFullscreen();
+
+                fsButton.style.display="none";
+
+            }
+
+        }
+
+        catch(err){
+
+            alert("Fullscreen isn't supported on this device.");
+
+            console.log(err);
+
+        }
+
+    });
+
+}
