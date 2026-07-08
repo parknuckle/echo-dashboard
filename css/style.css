@@ -12,6 +12,21 @@ body {
     overflow: hidden;
 }
 
+:root{
+
+    --glass-bg: rgba(30,48,74,.72);
+
+    --glass-border: rgba(255,255,255,.08);
+
+    --glass-radius: 24px;
+
+    --glass-shadow: 0 8px 24px rgba(0,0,0,.20);
+
+    --glass-blur: blur(18px);
+
+}
+
+
 .dashboard{
     display:flex;
     flex-direction:column;
@@ -25,18 +40,37 @@ body {
 
 .topbar{
     display:grid;
-    grid-template-columns: 1fr 1fr;
-    align-items:start;
+    grid-template-columns:auto 1fr;
+    align-items:center;
+
+    gap:28px;
+
+    padding:10px 22px;
+
+    margin-bottom:16px;
+
+  background:var(--glass-bg);
+
+backdrop-filter:var(--glass-blur);
+
+border:1px solid var(--glass-border);
+
+border-radius:var(--glass-radius);
+
+box-shadow:var(--glass-shadow);
 }
 
 #time{
-    font-size:72px;
+    font-size:66px;
     font-weight:700;
+    line-height:1;
 }
 
 #location{
-    font-size:28px;
-    color:#9fb3c8;
+    font-size:23px;
+    color:#c7d8eb;
+    line-height:1.05;
+    margin-top:2px;
 }
 
 #temp{
@@ -53,7 +87,7 @@ body {
 
 .content{
     flex:1;
-    margin:25px 0;
+    margin:8px 0;
     border-radius:30px;
     background:#162133;
 
@@ -82,9 +116,22 @@ body {
 .bottombar{
     display:flex;
     justify-content:space-around;
-    font-size:24px;
+    align-items:center;
+
+    padding:8px 24px;
+
+    background:var(--glass-bg);
+    backdrop-filter:var(--glass-blur);
+
+    border:1px solid var(--glass-border);
+    border-radius:var(--glass-radius);
+
+    box-shadow:var(--glass-shadow);
+
+    font-size:22px;
     color:#d5dce5;
 }
+
 #date {
     margin-top: 6px;
     font-size: 24px;
@@ -132,12 +179,16 @@ body {
 
 .forecast-strip{
     display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    gap:34px;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:26px;
 
     width:100%;
 }
+
 .forecast-item{
     text-align:center;
     min-width:60px;
@@ -167,14 +218,17 @@ body {
     position:absolute;
 
     left:30px;
-
     bottom:30px;
 
-    background:rgba(12,20,35,.80);
+    background:var(--glass-bg);
 
-    backdrop-filter:blur(12px);
+    backdrop-filter:var(--glass-blur);
 
-    border-radius:18px;
+    border:1px solid var(--glass-border);
+
+    border-radius:var(--glass-radius);
+
+    box-shadow:var(--glass-shadow);
 
     padding:18px 24px;
 
