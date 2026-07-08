@@ -92,8 +92,8 @@ const startIndex = data.hourly.time.findIndex(time => {
     return new Date(time).getHours() === currentHour;
 });
 
-// Update the next four hours
-for (let i = 1; i <= 4; i++) {
+// Update the next six hours
+for (let i = 1; i <= 6; i++) {
 
     const index = startIndex + i;
 
