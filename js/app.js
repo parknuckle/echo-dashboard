@@ -62,7 +62,17 @@ function updateClock() {
 
 }
 
+// ===========================
+// HEADER ROTATION
+// ===========================
 
+let showingWeek = false;
+
+// Stores the live hourly forecast
+let hourlyForecast = [];
+
+// Stores the live weekly forecast
+let weeklyForecast = [];
 
 
 // ===========================
@@ -79,7 +89,7 @@ async function loadWeather() {
 
         const data = await response.json();
 
-    // ===========================
+ // ===========================
 // HOURLY FORECAST
 // ===========================
 
@@ -92,8 +102,8 @@ const startIndex = data.hourly.time.findIndex(time => {
     return new Date(time).getHours() === currentHour;
 });
 
-// Update the next six hours
-for (let i = 1; i <= 6; i++) {
+// Update the next seven hours
+for (let i = 1; i <= 7; i++) {
 
     const index = startIndex + i;
 
@@ -103,16 +113,19 @@ for (let i = 1; i <= 6; i++) {
         hour: "numeric"
     });
 
-    document.getElementById(`hour${i}-time`).textContent =
-        hourText;
+   hourlyForecast.push({
 
-    document.getElementById(`hour${i}-temp`).textContent =
-        Math.round(data.hourly.temperature_2m[index]) + "°";
+    time: hourText,
 
-    document.getElementById(`hour${i}-icon`).textContent =
-        weatherDescription(data.hourly.weather_code[index]).split(" ")[0];
+    icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
+
+    temp: Math.round(data.hourly.temperature_2m[index]) + "°"
+
+});
 
 }    
+
+
 
        // Temperature
 document.getElementById("temp").textContent =
@@ -150,6 +163,87 @@ document.getElementById("sunrise").textContent =
 
 }   // <-- loadWeather() ends here
 
+
+
+
+// ===========================
+// DISPLAY HEADER FORECAST
+// ===========================
+
+function displayForecast(data) {
+
+    for (let i = 1; i <= 7; i++) {
+
+        document.getElementById(`hour${i}-time`).textContent =
+            data[i - 1].time;
+
+        document.getElementById(`hour${i}-icon`).textContent =
+            data[i - 1].icon;
+
+        document.getElementById(`hour${i}-temp`).textContent =
+            data[i - 1].temp;
+    }
+
+}
+
+
+// ===========================
+// FADE HEADER FORECAST
+// ===========================
+
+function fadeForecast(data) {
+
+    const strip = document.querySelector(".forecast-strip");
+
+    strip.style.opacity = 0;
+
+    setTimeout(() => {
+
+        displayForecast(data);
+
+        strip.style.opacity = 1;
+
+    }, 600);
+
+}
+
+// Temporary weekly forecast
+// TODO: Replace with live Open-Meteo data
+
+weeklyForecast = [
+
+    { time: "Thu", icon: "☀️", temp: "" },
+    { time: "Fri", icon: "🌤", temp: "" },
+    { time: "Sat", icon: "🌧", temp: "" },
+    { time: "Sun", icon: "⛅", temp: "" },
+    { time: "Mon", icon: "☀️", temp: "" },
+    { time: "Tue", icon: "☀️", temp: "" },
+    { time: "Wed", icon: "🌦", temp: "" }
+
+];
+
+// ===========================
+// ROTATE HEADER
+// ===========================
+
+function rotateHeader() {
+
+    if (showingWeek) {
+
+        fadeForecast(hourlyForecast);
+
+    } else {
+
+        fadeForecast(weeklyForecast);
+
+    }
+
+    showingWeek = !showingWeek;
+
+}
+
+
+
 // ===========================
 // START DASHBOARD
 // ===========================
@@ -159,6 +253,8 @@ setInterval(updateClock, 1000);
 
 loadWeather();
 setInterval(loadWeather, 10 * 60 * 1000);
+
+setInterval(rotateHeader, 45000);
 // ===========================
 // FULLSCREEN
 // ===========================

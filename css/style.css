@@ -187,6 +187,8 @@ box-shadow:var(--glass-shadow);
     gap:26px;
 
     width:100%;
+
+    transition: opacity .6s ease;
 }
 
 .forecast-item{
@@ -296,4 +298,149 @@ box-shadow:var(--glass-shadow);
 
 #fullscreen-btn:hover{
     background:rgba(255,255,255,.18);
+}
+
+/*=========================
+  WEEK AHEAD
+==========================*/
+
+.week-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    height:100%;
+
+    padding:35px 20px;
+
+    gap:10px;
+}
+
+.day-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:22px;
+}
+
+.day-column.alt{
+
+    background:rgba(255,255,255,.04);
+}
+
+.day-name{
+
+    font-size:24px;
+
+    color:#d9e5f2;
+
+    margin-bottom:28px;
+
+    font-weight:600;
+}
+
+.day-icon{
+
+    font-size:44px;
+
+    margin-bottom:28px;
+}
+
+.high-temp{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    line-height:1;
+}
+
+.low-temp{
+
+    font-size:28px;
+
+    color:#9fb3c8;
+
+    margin-top:14px;
+}
+
+/*=========================
+  WEEK SCREEN
+==========================*/
+
+.week-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    height:100%;
+
+    padding:30px;
+
+    gap:10px;
+}
+
+.day-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:flex-start;
+
+    align-items:center;
+
+    padding-top:85px;
+
+    border-radius:20px;
+}
+
+.day-column.alt{
+
+    background:rgba(255,255,255,.03);
+}
+
+.day-name{
+
+    font-size:20px;
+
+    font-weight:600;
+
+    color:#c7d5e4;
+
+
+    margin-bottom:20px;
+}
+
+.day-icon{
+
+    font-size:52px;
+
+    margin-bottom:20px;
+}
+
+.high-temp{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    line-height:1;
+}
+
+.low-temp{
+
+    font-size:26px;
+
+    color:#9fb3c8;
+
+    margin-top:8px;
 }
