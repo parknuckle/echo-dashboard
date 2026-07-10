@@ -33,10 +33,13 @@ function updateClock() {
 
     const now = new Date();
 
-    const time = now.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
+   const clock = now.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
     });
+
+    const [timePart, ampm] = clock.split(" ");
 
     const date = now.toLocaleDateString([], {
         weekday: "long",
@@ -44,7 +47,8 @@ function updateClock() {
         day: "numeric"
     });
 
-    document.getElementById("time").textContent = time;
+   document.getElementById("clock-time").textContent = timePart;
+   document.getElementById("clock-ampm").textContent = ampm;
 
     let dateElement = document.getElementById("date");
 

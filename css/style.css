@@ -61,9 +61,27 @@ box-shadow:var(--glass-shadow);
 }
 
 #time{
-    font-size:66px;
+
+    display:flex;
+    align-items:flex-end;
+
+}
+
+#clock-time{
+
+    font-size:58px;
     font-weight:700;
     line-height:1;
+
+}
+
+#clock-ampm{
+
+    font-size:28px;
+    font-weight:600;
+    margin-left:6px;
+    margin-bottom:5px;
+
 }
 
 #location{
