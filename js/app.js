@@ -82,7 +82,7 @@ let weeklyForecast = [];
 async function loadWeather() {
 
   const url =
-`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
     try {
 
         const response = await fetch(url);
@@ -103,6 +103,8 @@ const startIndex = data.hourly.time.findIndex(time => {
 });
 
 // Update the next seven hours
+
+hourlyForecast = [];
 for (let i = 1; i <= 7; i++) {
 
     const index = startIndex + i;
@@ -123,11 +125,43 @@ for (let i = 1; i <= 7; i++) {
 
 });
 
-}    
+}   // <-- end of for loop
+
+if (!showingWeek) {
+
+    displayForecast(hourlyForecast);
+    }
+
+    // Build the weekly forecast
+
+weeklyForecast = [];
+
+for (let i = 0; i < 7; i++) {
+
+    const day = new Date(data.daily.time[i]);
+
+    const dayName = day.toLocaleDateString([], {
+        weekday: "short"
+    });
+
+    weeklyForecast.push({
+
+        time: dayName,
+
+        icon: weatherDescription(data.daily.weather_code[i]).split(" ")[0],
+
+        temp: Math.round(data.daily.temperature_2m_max[i]) + "°",
+
+        low: Math.round(data.daily.temperature_2m_min[i]) + "°"
+    });
+
+}
 
 
 
-       // Temperature
+// Temperature
+
+
 document.getElementById("temp").textContent =
     Math.round(data.current.temperature_2m) + "°";
 
@@ -182,6 +216,20 @@ function displayForecast(data) {
 
         document.getElementById(`hour${i}-temp`).textContent =
             data[i - 1].temp;
+
+        document.getElementById(`hour${i}-low`).textContent =
+            data[i - 1].low || "";
+
+         const item = document.querySelectorAll(".forecast-item")[i - 1];
+
+       item.classList.remove("week-panel");
+
+    if (data[i - 1].low) {
+
+       item.classList.add("week-panel");
+
+}   
+
     }
 
 }

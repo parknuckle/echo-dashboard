@@ -184,7 +184,7 @@ box-shadow:var(--glass-shadow);
 
     align-items:center;
 
-    gap:26px;
+    gap:20px;
 
     width:100%;
 
@@ -192,8 +192,18 @@ box-shadow:var(--glass-shadow);
 }
 
 .forecast-item{
+
     text-align:center;
     min-width:60px;
+    padding:8px 18px;
+    border-radius:16px;
+
+}
+
+.forecast-item.week-panel{
+
+    background:rgba(255,255,255,.06);
+
 }
 
 .forecast-time{
@@ -211,6 +221,24 @@ box-shadow:var(--glass-shadow);
     font-size:24px;
     font-weight:600;
 }
+.forecast-low{
+
+    margin-top:2px;
+
+    font-size:18px;
+
+    color:#9fb3c8;
+
+    font-weight:500;
+
+    line-height:1;
+
+    min-height:18px;
+
+}
+
+
+
 /* ===========================
    NOW CARD
 =========================== */
@@ -301,7 +329,8 @@ box-shadow:var(--glass-shadow);
 }
 
 /*=========================
-  WEEK AHEAD
+  WEEK AHEAD 
+  legacy screen prototype keeping for now
 ==========================*/
 
 .week-grid{
@@ -373,6 +402,7 @@ box-shadow:var(--glass-shadow);
 
 /*=========================
   WEEK SCREEN
+  Legacy screen prototype keeping for now
 ==========================*/
 
 .week-grid{
