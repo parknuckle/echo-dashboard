@@ -142,7 +142,7 @@ weeklyForecast = [];
 
 for (let i = 0; i < 7; i++) {
 
-    const day = new Date(data.daily.time[i]);
+   const day = new Date(data.daily.time[i] + "T12:00:00");
 
     const dayName = day.toLocaleDateString([], {
         weekday: "short"
