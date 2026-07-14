@@ -319,6 +319,7 @@ box-shadow:var(--glass-shadow);
 
 #fullscreen-btn{
 
+ 
     position:fixed;
 
     top:50%;
@@ -491,4 +492,112 @@ box-shadow:var(--glass-shadow);
     color:#9fb3c8;
 
     margin-top:8px;
+}
+/* ===========================
+   WELCOME OVERLAY
+=========================== */
+
+#welcome-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:#0b1220;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:50000;
+
+}
+
+.welcome-card{
+
+    width:min(540px,90vw);
+
+    padding:70px;
+
+    text-align:center;
+
+    background:var(--glass-bg);
+
+    backdrop-filter:var(--glass-blur);
+
+    border:1px solid var(--glass-border);
+
+    border-radius:var(--glass-radius);
+
+    box-shadow:var(--glass-shadow);
+
+}
+
+.welcome-card h1{
+
+    font-size:64px;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+
+}
+
+.welcome-card h2{
+
+    font-size:30px;
+
+    font-weight:500;
+
+    color:#d7e7f6;
+
+    margin-bottom:26px;
+
+}
+
+.welcome-card p{
+
+    font-size:24px;
+
+    color:#9fb3c8;
+
+    line-height:1.5;
+
+    margin-bottom:42px;
+
+}
+.welcome-card h1{
+
+    font-size:64px;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+
+}
+
+.welcome-card h2{
+
+    font-size:30px;
+
+    font-weight:500;
+
+    color:#d7e7f6;
+
+    margin-bottom:26px;
+
+}
+
+.welcome-card p{
+
+    font-size:24px;
+
+    color:#9fb3c8;
+
+    line-height:1.5;
+
+    margin-bottom:42px;
+
 }

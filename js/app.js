@@ -300,13 +300,17 @@ function rotateHeader() {
 // START DASHBOARD
 // ===========================
 
-updateClock();
-setInterval(updateClock, 1000);
+function startDashboard() {
 
-loadWeather();
-setInterval(loadWeather, 10 * 60 * 1000);
+    updateClock();
+    setInterval(updateClock, 1000);
 
-setInterval(rotateHeader, 45000);
+    loadWeather();
+    setInterval(loadWeather, 10 * 60 * 1000);
+
+    setInterval(rotateHeader, 45000);
+
+}
 // ===========================
 // FULLSCREEN
 // ===========================
@@ -336,6 +340,23 @@ if (fsButton){
             console.log(err);
 
         }
+
+    });
+
+}
+// ===========================
+// WELCOME SCREEN
+// ===========================
+
+const welcomeButton = document.getElementById("get-started-btn");
+
+if (welcomeButton) {
+
+    welcomeButton.addEventListener("click", () => {
+
+        document.getElementById("welcome-overlay").style.display = "none";
+
+        startDashboard();
 
     });
 
