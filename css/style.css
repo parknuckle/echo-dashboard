@@ -1,31 +1,16 @@
 /* ==========================================================
-   SkyPanel
-   style.css
-
-   Beautiful dashboards, made simple.
-
-   Author: Shawn Boyle
+   SkyPanel | style.css
    ========================================================== */
 
-/* ==========================================================
-   CSS VARIABLES
-   ========================================================== */
 :root {
-    --glass-bg: rgba(30,48,74,.72);
-    --glass-border: rgba(255,255,255,.08);
+    --glass-bg: rgba(30, 48, 74, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
     --glass-radius: 24px;
-    --glass-shadow: 0 8px 24px rgba(0,0,0,.20);
+    --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     --glass-blur: blur(18px);
 }
 
-/* ==========================================================
-   GLOBAL STYLES
-   ========================================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     background: #0b1220;
@@ -35,21 +20,26 @@ body {
     overflow: hidden;
 }
 
-/* ==========================================================
-   WELCOME OVERLAY
-   ========================================================== */
+/* --- Welcome Overlay --- */
 #welcome-overlay {
     position: fixed;
     inset: 0;
-    background: #0b1220;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100000;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.welcome-logo {
+    width: 260px;
+    height: auto;
+    display: block;
+    margin: 0 auto 25px;
 }
 
 .welcome-card {
-    width: min(540px,90vw);
+    width: min(540px, 90vw);
     padding: 70px;
     text-align: center;
     background: var(--glass-bg);
@@ -59,419 +49,60 @@ body {
     box-shadow: var(--glass-shadow);
 }
 
-.welcome-logo {
-    width: 260px;
-    height: auto;
-    display: block;
-    margin: 0 auto 25px;
-    transform: translateX(-8px);
+/* Wizard Steps */
+#step-1, #step-2 { display: none; }
+#step-1.active, #step-2.active { display: block; animation: fadeStep 0.4s ease forwards; }
+
+@keyframes fadeStep {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.welcome-card h1 {
-    font-size: 64px;
-    font-weight: 700;
-    margin-bottom: 12px;
-}
-
-.welcome-card h2 {
-    font-size: 30px;
-    font-weight: 500;
-    color: #d7e7f6;
-    margin-bottom: 26px;
-}
-
-.welcome-card p {
-    font-size: 24px;
-    color: #9fb3c8;
-    line-height: 1.5;
-    margin-bottom: 42px;
-}
-
-/* Welcome Wizard Inputs */
-.input-group {
-    margin: 0 auto 35px;
-    max-width: 260px;
-}
-
-#zip-input {
-    width: 100%;
-    padding: 16px 20px;
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
-    color: white;
-    background: rgba(0, 0, 0, 0.25);
-    border: 2px solid var(--glass-border);
-    border-radius: 16px;
-    outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
-    font-family: inherit;
-}
-
-#zip-input:focus {
-    border-color: #5ca9ff;
-    background: rgba(0, 0, 0, 0.4);
-}
-
-#zip-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-}
-
-/* Wizard Buttons */
-#get-started-btn,
-#next-btn-2 {
+/* Buttons */
+#get-started-btn, #use-location-btn {
     display: block;
     width: 260px;
     margin: 35px auto 15px;
     padding: 16px 24px;
     border: none;
     border-radius: 18px;
-    background: linear-gradient(180deg,#5ca9ff,#3488f6);
+    background: linear-gradient(180deg, #5ca9ff, #3488f6);
     color: #fff;
     font-size: 22px;
     font-weight: 700;
-    letter-spacing: .3px;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(0,0,0,.25);
-    transition: all .2s ease;
+    transition: all 0.2s ease;
 }
 
-#get-started-btn:hover,
-#next-btn-2:hover {
+#get-started-btn:hover, #use-location-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(0,0,0,.30);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
-#get-started-btn:active,
-#next-btn-2:active {
-    transform: translateY(0);
-}
-/* Wizard Steps */
-.wizard-step {
-    display: none; /* Hides all steps by default */
-}
-
-.wizard-step.active {
-    display: block; /* Shows only the active step */
-    animation: fadeStep 0.4s ease forwards;
-}
-
-@keyframes fadeStep {
-    from { 
-        opacity: 0; 
-        transform: translateY(5px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-/* ==========================================================
-   DASHBOARD
-   ========================================================== */
-.dashboard {
-    display: flex; /* Changed from none to flex */
-    flex-direction: column;
-    height: 100%;
-    padding: 18px;
-    overflow: hidden;
-    opacity: 1; /* Ensure it's opaque */
-    visibility: visible; /* Ensure it's visible */
-}
-
-.content {
-    flex: 1;
-    margin: 8px 0;
-    border-radius: 30px;
-    background: #162133;
-    position: relative;
-    overflow: hidden;
-}
-
-.placeholder {
-    font-size: 56px;
-    color: #6fb6ff;
-    letter-spacing: 3px;
-}
-
-/* Content Stage */
-#content-stage {
-    position: absolute;
-    inset: 0;
-}
-
-/* Every screen occupies the same space */
-.screen {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity .8s ease, visibility .8s ease;
-}
-
-/* Only the active screen is visible */
-.screen.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* ==========================================================
-   HEADER
-   ========================================================== */
+/* --- Dashboard Elements --- */
+.dashboard { display: flex; flex-direction: column; height: 100%; padding: 18px; }
 .topbar {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
     gap: 28px;
     padding: 10px 22px;
-    margin-bottom: 16px;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
     border-radius: var(--glass-radius);
-    box-shadow: var(--glass-shadow);
 }
 
-#location {
-    font-size: 23px;
-    color: #c7d8eb;
-    line-height: 1.05;
-    margin-top: 2px;
-    white-space: nowrap; /* Forces text to stay on one line */
-}
-
-
-#temp {
-    font-size: 72px;
-    text-align: right;
-    font-weight: 700;
-}
-
-#conditions {
-    font-size: 28px;
-    color: #9fb3c8;
-    text-align: right;
-}
-
-/* ==========================================================
-   CLOCK
-   ========================================================== */
-#time {
-    display: flex;
-    align-items: flex-end;
-}
-
-#clock-time {
-    font-size: 58px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-#clock-ampm {
-    font-size: 28px;
-    font-weight: 600;
-    margin-left: 6px;
-    margin-bottom: 5px;
-}
-
-/* ==========================================================
-   FORECAST STRIP
-   ========================================================== */
-.forecast-strip {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    transition: opacity .6s ease;
-}
-
-.forecast-item {
-    text-align: center;
-    min-width: 60px;
-    padding: 4px 18px;
-    border-radius: 16px;
-}
-
-.forecast-item.week-panel {
-    background: rgba(255,255,255,.06);
-}
-
-.forecast-time {
-    font-size: 18px;
-    color: #9fb3c8;
-    margin-bottom: 6px;
-}
-
-.forecast-icon {
-    font-size: 28px;
-    margin-bottom: 6px;
-}
-
-.forecast-temp {
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.forecast-low {
-    margin-top: 2px;
-    font-size: 18px;
-    color: #9fb3c8;
-    font-weight: 500;
-    line-height: 1;
-    min-height: 18px;
-}
-
-/* ==========================================================
-   RADAR SCREEN
-   ========================================================== */
-/* Keep the radar filling the panel */
-#radar-screen {
-    width: 100%;
-    height: 100%;
-}
-
-.radar-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: 24px;
-}
-
-#radarFrame {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* ==========================================================
-   WEEKLY FORECAST
-   ========================================================== */
-/* Legacy screen prototype keeping for now */
-.week-grid {
-    display: grid;
-    grid-template-columns: repeat(7,1fr);
-    height: 100%;
-    padding: 30px;
-    gap: 10px;
-}
-
-.day-column {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 85px;
-    border-radius: 20px;
-}
-
-.day-column.alt {
-    background: rgba(255,255,255,.03);
-}
-
-.day-name {
-    font-size: 20px;
-    font-weight: 600;
-    color: #c7d5e4;
-    margin-bottom: 20px;
-}
-
-.day-icon {
-    font-size: 52px;
-    margin-bottom: 20px;
-}
-
-.high-temp {
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.low-temp {
-    font-size: 26px;
-    color: #9fb3c8;
-    margin-top: 8px;
-}
-
-/* ==========================================================
-   NOW CARD
-   ========================================================== */
-.now-card {
-    position: absolute;
-    left: 30px;
-    bottom: 30px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--glass-radius);
-    box-shadow: var(--glass-shadow);
-    padding: 18px 24px;
-    min-width: 170px;
-    z-index: 100;
-}
-
-.now-label {
-    color: #9fb3c8;
-    font-size: 14px;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-}
-
-.now-card #temp {
-    font-size: 46px;
-    font-weight: 700;
-    text-align: left;
-}
-
-.now-card #conditions {
-    font-size: 22px;
-    color: #c7d5e4;
-    text-align: left;
-}
-
-/* ==========================================================
-   BOTTOM BAR
-   ========================================================== */
-.bottombar {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 8px 24px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--glass-radius);
-    box-shadow: var(--glass-shadow);
-    font-size: 22px;
-    color: #d5dce5;
-}
-
-#date {
-    margin-top: 6px;
-    font-size: 24px;
-    color: #9fb3c8;
-}
-
-/* ==========================================================
-   BUTTONS
-   ========================================================== */
 #fullscreen-btn {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     padding: 18px 32px;
-    background: rgba(0,0,0,.75);
+    background: rgba(0, 0, 0, 0.75);
     color: white;
     border: 2px solid white;
     border-radius: 18px;
-    font-size: 28px;
     font-weight: bold;
     z-index: 99999;
     cursor: pointer;
-}
-
-#fullscreen-btn:hover {
-    background: rgba(255,255,255,.18);
 }
