@@ -135,4 +135,3 @@ if (document.readyState === 'loading') {
 } else {
     initDashboard();
 }
-```[cite: 2]
