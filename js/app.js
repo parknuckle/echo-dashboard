@@ -58,10 +58,17 @@ document.addEventListener('click', (e) => {
         if (!document.fullscreenElement) document.documentElement.requestFullscreen();
         e.target.style.display = "none";
     }
-    if (e.target.id === 'get-started-btn') {
-        document.getElementById('step-1').classList.remove('active');
-        document.getElementById('step-2').classList.add('active');
-    }
+   if (e.target.id === 'get-started-btn') {
+    // Hide Step 1
+    const step1 = document.getElementById('step-1');
+    step1.classList.remove('active');
+    step1.style.display = 'none';
+
+    // Show Step 2
+    const step2 = document.getElementById('step-2');
+    step2.classList.add('active');
+    step2.style.display = 'block'; // Or 'flex' if that is what your CSS uses
+}
     if (e.target.id === 'use-location-btn') {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
