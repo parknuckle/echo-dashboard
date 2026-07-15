@@ -10,25 +10,11 @@
 // ==========================================================
 
 // ==========================================================
-// CONFIGURATION
-// Reserved for future application settings.
-// ==========================================================
-
-// ==========================================================
-// CONSTANTS
-// Future
-// ==========================================================
-
-// ==========================================================
 // GLOBAL VARIABLES
 // ==========================================================
 
 let showingWeek = false;
-
-// Stores the live hourly forecast
 let hourlyForecast = [];
-
-// Stores the live weekly forecast
 let weeklyForecast = [];
 
 // ==========================================================
@@ -36,28 +22,13 @@ let weeklyForecast = [];
 // ==========================================================
 
 function weatherDescription(code) {
-
     const weather = {
-        0: "☀️ Clear",
-        1: "🌤 Mostly Clear",
-        2: "⛅ Partly Cloudy",
-        3: "☁️ Cloudy",
-        45: "🌫 Fog",
-        48: "🌫 Freezing Fog",
-        51: "🌦 Light Drizzle",
-        53: "🌦 Drizzle",
-        55: "🌦 Heavy Drizzle",
-        61: "🌧 Rain",
-        63: "🌧 Moderate Rain",
-        65: "🌧 Heavy Rain",
-        71: "❄️ Snow",
-        73: "❄️ Moderate Snow",
-        75: "❄️ Heavy Snow",
-        80: "🌦 Rain Showers",
-        81: "🌧 Heavy Showers",
-        95: "⛈ Thunderstorm"
+        0: "☀️ Clear", 1: "🌤 Mostly Clear", 2: "⛅ Partly Cloudy", 3: "☁️ Cloudy",
+        45: "🌫 Fog", 48: "🌫 Freezing Fog", 51: "🌦 Light Drizzle", 53: "🌦 Drizzle",
+        55: "🌦 Heavy Drizzle", 61: "🌧 Rain", 63: "🌧 Moderate Rain", 65: "🌧 Heavy Rain",
+        71: "❄️ Snow", 73: "❄️ Moderate Snow", 75: "❄️ Heavy Snow", 80: "🌦 Rain Showers",
+        81: "🌧 Heavy Showers", 95: "⛈ Thunderstorm"
     };
-
     return weather[code] || "Unknown";
 }
 
@@ -66,325 +37,149 @@ function weatherDescription(code) {
 // ==========================================================
 
 function updateClock() {
-
     const now = new Date();
-
-   const clock = now.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
-    });
-
+    const clock = now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
     const [timePart, ampm] = clock.split(" ");
+    const date = now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
 
-    const date = now.toLocaleDateString([], {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-    });
-
-   document.getElementById("clock-time").textContent = timePart;
-   document.getElementById("clock-ampm").textContent = ampm;
+    document.getElementById("clock-time").textContent = timePart;
+    document.getElementById("clock-ampm").textContent = ampm;
 
     let dateElement = document.getElementById("date");
-
     if (!dateElement) {
-
         dateElement = document.createElement("div");
-
         dateElement.id = "date";
-
         document.querySelector(".clock").appendChild(dateElement);
-
     }
-
     dateElement.textContent = date;
-
 }
 
 // ==========================================================
 // LOCATION
-// Location selection and geolocation.
 // ==========================================================
+
+const ZIP_COORDINATES = {
+    "32955": { lat: 28.3243, lon: -80.7303 },
+    "14830": { lat: 42.1429, lon: -77.0547 }
+};
+
+function getCoordinates(zip) {
+    return ZIP_COORDINATES[zip] || { lat: 42.1429, lon: -77.0547 };
+}
 
 // ==========================================================
 // WEATHER
 // ==========================================================
 
 async function loadWeather() {
-
-  const url =
-`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+    const savedZip = localStorage.getItem('skyPanelZip') || "14830";
+    const coords = getCoordinates(savedZip);
+    
+    // FIX: Using dynamic coords.lat and coords.lon here
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+    
+    const cityNames = { "32955": "Rockledge, FL", "14830": "Corning, NY" };
+    document.getElementById("location").textContent = cityNames[savedZip] || "SkyPanel";
+    
     try {
-
         const response = await fetch(url);
-
         const data = await response.json();
 
-// Current hour
-const now = new Date();
-const currentHour = now.getHours();
+        const now = new Date();
+        const currentHour = now.getHours();
+        const startIndex = data.hourly.time.findIndex(time => new Date(time).getHours() === currentHour);
 
-// Find the current hour in the API data
-const startIndex = data.hourly.time.findIndex(time => {
-    return new Date(time).getHours() === currentHour;
-});
+        hourlyForecast = [];
+        for (let i = 1; i <= 7; i++) {
+            const index = startIndex + i;
+            const hour = new Date(data.hourly.time[index]);
+            const hourText = hour.toLocaleTimeString([], { hour: "numeric" });
+            hourlyForecast.push({
+                time: hourText,
+                icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
+                temp: Math.round(data.hourly.temperature_2m[index]) + "°"
+            });
+        }
 
-// Update the next seven hours
+        if (!showingWeek) displayForecast(hourlyForecast);
 
-hourlyForecast = [];
-for (let i = 1; i <= 7; i++) {
-
-    const index = startIndex + i;
-
-    const hour = new Date(data.hourly.time[index]);
-
-    const hourText = hour.toLocaleTimeString([], {
-        hour: "numeric"
-    });
-
-   hourlyForecast.push({
-
-    time: hourText,
-
-    icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
-
-    temp: Math.round(data.hourly.temperature_2m[index]) + "°"
-
-});
-
-}   // <-- end of for loop
-
-if (!showingWeek) {
-
-    displayForecast(hourlyForecast);
-    }
-
-    // Build the weekly forecast
-
-weeklyForecast = [];
-
-for (let i = 0; i < 7; i++) {
-
-   const day = new Date(data.daily.time[i] + "T12:00:00");
-
-    const dayName = day.toLocaleDateString([], {
-        weekday: "short"
-    });
-
-    weeklyForecast.push({
-
-        time: dayName,
-
-        icon: weatherDescription(data.daily.weather_code[i]).split(" ")[0],
-
-        temp: Math.round(data.daily.temperature_2m_max[i]) + "°",
-
-        low: Math.round(data.daily.temperature_2m_min[i]) + "°"
-    });
-
+        document.getElementById("temp").textContent = Math.round(data.current.temperature_2m) + "°";
+        document.getElementById("conditions").textContent = weatherDescription(data.current.weather_code);
+        document.getElementById("wind").textContent = "💨 Wind " + Math.round(data.current.wind_speed_10m) + " mph";
+        document.getElementById("humidity").textContent = "💧 Humidity " + data.current.relative_humidity_2m + "%";
+        
+        const sunrise = new Date(data.daily.sunrise[0]);
+        document.getElementById("sunrise").textContent = "🌅 Sunrise " + sunrise.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    } catch(error) { console.log(error); }
 }
 
-// Temperature
-
-document.getElementById("temp").textContent =
-    Math.round(data.current.temperature_2m) + "°";
-
-// Weather Conditions (temporary)
-document.getElementById("conditions").textContent =
-    weatherDescription(data.current.weather_code);
-
-// Wind
-document.getElementById("wind").textContent =
-    "💨 Wind " + Math.round(data.current.wind_speed_10m) + " mph";
-
-// Humidity
-document.getElementById("humidity").textContent =
-    "💧 Humidity " + data.current.relative_humidity_2m + "%";
-
-// Sunrise
-const sunrise = new Date(data.daily.sunrise[0]);
-
-document.getElementById("sunrise").textContent =
-    "🌅 Sunrise " +
-    sunrise.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
-    });
-
- }
-
-    catch(error){
-
-        console.log(error);
-
-    }
-
-}   // <-- loadWeather() ends here
-
-// ==========================================================
-// FORECAST
-// ==========================================================
-
 function displayForecast(data) {
-
     for (let i = 1; i <= 7; i++) {
-
-        document.getElementById(`hour${i}-time`).textContent =
-            data[i - 1].time;
-
-        document.getElementById(`hour${i}-icon`).textContent =
-            data[i - 1].icon;
-
-        document.getElementById(`hour${i}-temp`).textContent =
-            data[i - 1].temp;
-
-        document.getElementById(`hour${i}-low`).textContent =
-            data[i - 1].low || "";
-
-         const item = document.querySelectorAll(".forecast-item")[i - 1];
-
-       item.classList.remove("week-panel");
-
-    if (data[i - 1].low) {
-
-       item.classList.add("week-panel");
-
-}   
-
+        document.getElementById(`hour${i}-time`).textContent = data[i - 1].time;
+        document.getElementById(`hour${i}-icon`).textContent = data[i - 1].icon;
+        document.getElementById(`hour${i}-temp`).textContent = data[i - 1].temp;
     }
-
 }
 
 function fadeForecast(data) {
-
     const strip = document.querySelector(".forecast-strip");
-
     strip.style.opacity = 0;
-
-    setTimeout(() => {
-
-        displayForecast(data);
-
-        strip.style.opacity = 1;
-
-    }, 600);
-
+    setTimeout(() => { displayForecast(data); strip.style.opacity = 1; }, 600);
 }
 
 // ==========================================================
 // RADAR
-// Radar controls and map interaction.
 // ==========================================================
 
-// ==========================================================
-// WEEKLY FORECAST
-// ==========================================================
-
-// Temporary weekly forecast
-// TODO: Replace with live Open-Meteo data
-// Will be replaced by live Open-Meteo data
-weeklyForecast = [
-
-    { time: "Thu", icon: "☀️", temp: "" },
-    { time: "Fri", icon: "🌤", temp: "" },
-    { time: "Sat", icon: "🌧", temp: "" },
-    { time: "Sun", icon: "⛅", temp: "" },
-    { time: "Mon", icon: "☀️", temp: "" },
-    { time: "Tue", icon: "☀️", temp: "" },
-    { time: "Wed", icon: "🌦", temp: "" }
-
-];
-
-// ==========================================================
-// SCREEN ROTATION
-// ==========================================================
-
-function rotateHeader() {
-
-    if (showingWeek) {
-
-        fadeForecast(hourlyForecast);
-
-    } else {
-
-        fadeForecast(weeklyForecast);
-
-    }
-
-    showingWeek = !showingWeek;
-
+function updateRadar(lat, lon) {
+    const radarFrame = document.getElementById("radarFrame");
+    radarFrame.src = `https://www.rainviewer.com/map.html?loc=${lat},${lon},8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1`;
 }
 
 // ==========================================================
-// WELCOME WIZARD
+// WELCOME WIZARD & EVENT LISTENERS
 // ==========================================================
 
-const welcomeButton = document.getElementById("get-started-btn");
+const getStartedBtn = document.getElementById('get-started-btn');
+const nextBtn2 = document.getElementById('next-btn-2');
+const zipInput = document.getElementById('zip-input');
+const welcomeOverlay = document.getElementById('welcome-overlay');
+const step1 = document.getElementById('step-1');
+const step2 = document.getElementById('step-2');
 
-if (welcomeButton) {
-
-    welcomeButton.addEventListener("click", () => {
-
-        document.getElementById("welcome-overlay").style.display = "none";
-
-        startDashboard();
-
+if (getStartedBtn) {
+    getStartedBtn.addEventListener('click', () => {
+        step1.classList.remove('active');
+        step2.classList.add('active');
     });
-
 }
 
-// ==========================================================
-// FULLSCREEN
-// ==========================================================
-
-const fsButton = document.getElementById("fullscreen-btn");
-
-if (fsButton){
-
-    fsButton.addEventListener("click", async () => {
-
-        try{
-
-            if(!document.fullscreenElement){
-
-                await document.documentElement.requestFullscreen();
-
-                fsButton.style.display="none";
-
-            }
-
+if (nextBtn2) {
+    nextBtn2.addEventListener('click', () => {
+        const zipCode = zipInput.value.trim();
+        if (zipCode.length === 5) {
+            localStorage.setItem('skyPanelZip', zipCode);
+            const coords = getCoordinates(zipCode);
+            updateRadar(coords.lat, coords.lon);
+            welcomeOverlay.style.display = 'none';
         }
-
-        catch(err){
-
-            alert("Fullscreen isn't supported on this device.");
-
-            console.log(err);
-
-        }
-
     });
-
 }
-
-// ==========================================================
-// EVENT LISTENERS
-// Future
-// ==========================================================
 
 // ==========================================================
 // APPLICATION STARTUP
 // ==========================================================
 
 function startDashboard() {
-
     updateClock();
     setInterval(updateClock, 1000);
 
+    const savedZip = localStorage.getItem('skyPanelZip') || "14830";
+    const coords = getCoordinates(savedZip);
+    updateRadar(coords.lat, coords.lon);
+
     loadWeather();
     setInterval(loadWeather, 10 * 60 * 1000);
-
-    setInterval(rotateHeader, 45000);
-
 }
+
+startDashboard();

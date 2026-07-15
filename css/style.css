@@ -87,7 +87,39 @@ body {
     margin-bottom: 42px;
 }
 
-#get-started-btn {
+/* Welcome Wizard Inputs */
+.input-group {
+    margin: 0 auto 35px;
+    max-width: 260px;
+}
+
+#zip-input {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.25);
+    border: 2px solid var(--glass-border);
+    border-radius: 16px;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+}
+
+#zip-input:focus {
+    border-color: #5ca9ff;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+#zip-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Wizard Buttons */
+#get-started-btn,
+#next-btn-2 {
     display: block;
     width: 260px;
     margin: 35px auto 15px;
@@ -104,24 +136,48 @@ body {
     transition: all .2s ease;
 }
 
-#get-started-btn:hover {
+#get-started-btn:hover,
+#next-btn-2:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(0,0,0,.30);
 }
 
-#get-started-btn:active {
+#get-started-btn:active,
+#next-btn-2:active {
     transform: translateY(0);
+}
+/* Wizard Steps */
+.wizard-step {
+    display: none; /* Hides all steps by default */
+}
+
+.wizard-step.active {
+    display: block; /* Shows only the active step */
+    animation: fadeStep 0.4s ease forwards;
+}
+
+@keyframes fadeStep {
+    from { 
+        opacity: 0; 
+        transform: translateY(5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
 
 /* ==========================================================
    DASHBOARD
    ========================================================== */
 .dashboard {
-    display: flex;
+    display: flex; /* Changed from none to flex */
     flex-direction: column;
     height: 100%;
     padding: 18px;
     overflow: hidden;
+    opacity: 1; /* Ensure it's opaque */
+    visibility: visible; /* Ensure it's visible */
 }
 
 .content {
@@ -182,7 +238,9 @@ body {
     color: #c7d8eb;
     line-height: 1.05;
     margin-top: 2px;
+    white-space: nowrap; /* Forces text to stay on one line */
 }
+
 
 #temp {
     font-size: 72px;

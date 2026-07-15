@@ -43,12 +43,20 @@
                 <!-- ========================================================= -->
                 <!-- STEP 2 - LOCATION -->
                 <!-- ========================================================= -->
-                <div class="wizard-step" id="step-2">
-                    <h2>Let's get SkyPanel ready.</h2>
-                </div> <!-- end step-2 -->
+              <div class="wizard-step" id="step-2">
+                    <h2>Where is your SkyPanel located?</h2>
+                    <p class="welcome-subtitle">
+                        Enter your zip code so we can pull your local radar and forecast.
+                    </p>
+                    
+                    <div class="input-group">
+                        <input type="text" id="zip-input" placeholder="e.g. 14830" maxlength="5" pattern="\d*">
+                    </div>
 
-                <!-- STEP 3 - DEVICE (Future) -->
-                <!-- STEP 4 - FULLSCREEN (Future) -->
+                    <button id="next-btn-2">
+                        Next
+                    </button>
+                </div> <!-- end step-2 -->
 
             </div> <!-- end wizard-content -->
         </div> <!-- end welcome-card -->
@@ -140,7 +148,7 @@
                     <div class="radar-container">
                         <iframe
                             id="radarFrame"
-                            src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
+                            <iframe id="radarFrame" src="" frameborder="0"></iframe>
                             frameborder="0">
                         </iframe>
                     </div> <!-- end radar-container -->
