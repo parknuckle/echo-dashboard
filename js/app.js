@@ -1,7 +1,40 @@
-// ===========================
-// Echo Dashboard
+// ==========================================================
+//
+// SkyPanel
 // app.js
-// ===========================
+//
+// Beautiful dashboards, made simple.
+//
+// Author: Shawn Boyle
+//
+// ==========================================================
+
+// ==========================================================
+// CONFIGURATION
+// Reserved for future application settings.
+// ==========================================================
+
+// ==========================================================
+// CONSTANTS
+// Future
+// ==========================================================
+
+// ==========================================================
+// GLOBAL VARIABLES
+// ==========================================================
+
+let showingWeek = false;
+
+// Stores the live hourly forecast
+let hourlyForecast = [];
+
+// Stores the live weekly forecast
+let weeklyForecast = [];
+
+// ==========================================================
+// UTILITY FUNCTIONS
+// ==========================================================
+
 function weatherDescription(code) {
 
     const weather = {
@@ -27,7 +60,10 @@ function weatherDescription(code) {
 
     return weather[code] || "Unknown";
 }
-// ----- Clock -----
+
+// ==========================================================
+// CLOCK
+// ==========================================================
 
 function updateClock() {
 
@@ -66,22 +102,14 @@ function updateClock() {
 
 }
 
-// ===========================
-// HEADER ROTATION
-// ===========================
+// ==========================================================
+// LOCATION
+// Location selection and geolocation.
+// ==========================================================
 
-let showingWeek = false;
-
-// Stores the live hourly forecast
-let hourlyForecast = [];
-
-// Stores the live weekly forecast
-let weeklyForecast = [];
-
-
-// ===========================
+// ==========================================================
 // WEATHER
-// ===========================
+// ==========================================================
 
 async function loadWeather() {
 
@@ -92,10 +120,6 @@ async function loadWeather() {
         const response = await fetch(url);
 
         const data = await response.json();
-
- // ===========================
-// HOURLY FORECAST
-// ===========================
 
 // Current hour
 const now = new Date();
@@ -161,10 +185,7 @@ for (let i = 0; i < 7; i++) {
 
 }
 
-
-
 // Temperature
-
 
 document.getElementById("temp").textContent =
     Math.round(data.current.temperature_2m) + "°";
@@ -201,12 +222,9 @@ document.getElementById("sunrise").textContent =
 
 }   // <-- loadWeather() ends here
 
-
-
-
-// ===========================
-// DISPLAY HEADER FORECAST
-// ===========================
+// ==========================================================
+// FORECAST
+// ==========================================================
 
 function displayForecast(data) {
 
@@ -238,11 +256,6 @@ function displayForecast(data) {
 
 }
 
-
-// ===========================
-// FADE HEADER FORECAST
-// ===========================
-
 function fadeForecast(data) {
 
     const strip = document.querySelector(".forecast-strip");
@@ -259,9 +272,18 @@ function fadeForecast(data) {
 
 }
 
+// ==========================================================
+// RADAR
+// Radar controls and map interaction.
+// ==========================================================
+
+// ==========================================================
+// WEEKLY FORECAST
+// ==========================================================
+
 // Temporary weekly forecast
 // TODO: Replace with live Open-Meteo data
-
+// Will be replaced by live Open-Meteo data
 weeklyForecast = [
 
     { time: "Thu", icon: "☀️", temp: "" },
@@ -274,9 +296,9 @@ weeklyForecast = [
 
 ];
 
-// ===========================
-// ROTATE HEADER
-// ===========================
+// ==========================================================
+// SCREEN ROTATION
+// ==========================================================
 
 function rotateHeader() {
 
@@ -294,26 +316,27 @@ function rotateHeader() {
 
 }
 
+// ==========================================================
+// WELCOME WIZARD
+// ==========================================================
 
+const welcomeButton = document.getElementById("get-started-btn");
 
-// ===========================
-// START DASHBOARD
-// ===========================
+if (welcomeButton) {
 
-function startDashboard() {
+    welcomeButton.addEventListener("click", () => {
 
-    updateClock();
-    setInterval(updateClock, 1000);
+        document.getElementById("welcome-overlay").style.display = "none";
 
-    loadWeather();
-    setInterval(loadWeather, 10 * 60 * 1000);
+        startDashboard();
 
-    setInterval(rotateHeader, 45000);
+    });
 
 }
-// ===========================
+
+// ==========================================================
 // FULLSCREEN
-// ===========================
+// ==========================================================
 
 const fsButton = document.getElementById("fullscreen-btn");
 
@@ -344,20 +367,24 @@ if (fsButton){
     });
 
 }
-// ===========================
-// WELCOME SCREEN
-// ===========================
 
-const welcomeButton = document.getElementById("get-started-btn");
+// ==========================================================
+// EVENT LISTENERS
+// Future
+// ==========================================================
 
-if (welcomeButton) {
+// ==========================================================
+// APPLICATION STARTUP
+// ==========================================================
 
-    welcomeButton.addEventListener("click", () => {
+function startDashboard() {
 
-        document.getElementById("welcome-overlay").style.display = "none";
+    updateClock();
+    setInterval(updateClock, 1000);
 
-        startDashboard();
+    loadWeather();
+    setInterval(loadWeather, 10 * 60 * 1000);
 
-    });
+    setInterval(rotateHeader, 45000);
 
 }
