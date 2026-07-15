@@ -87,7 +87,12 @@ function updateRadar(lat, lon) {
     radarFrame.src = `https://www.rainviewer.com/map.html?loc=${lat},${lon},8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1`;
 }
 
-function initDashboard() {
+// ==========================================================
+// UPDATED STARTUP: Automatic Location Detection
+// ==========================================================
+
+async function initDashboard() {
+    // 1. Fullscreen Handler (Keep as is)
     const fsButton = document.getElementById("fullscreen-btn");
     if (fsButton) {
         fsButton.onclick = async () => {
@@ -97,18 +102,12 @@ function initDashboard() {
             }
         };
     }
-    const getStartedBtn = document.getElementById('get-started-btn');
+
+    // 2. Wizard & Fallback
     const nextBtn2 = document.getElementById('next-btn-2');
     const zipInput = document.getElementById('zip-input');
     const welcomeOverlay = document.getElementById('welcome-overlay');
-    const step1 = document.getElementById('step-1');
-    const step2 = document.getElementById('step-2');
-    if (getStartedBtn) {
-        getStartedBtn.onclick = () => {
-            step1.classList.remove('active');
-            step2.classList.add('active');
-        };
-    }
+
     if (nextBtn2) {
         nextBtn2.onclick = () => {
             const zipCode = zipInput.value.trim();
@@ -121,12 +120,36 @@ function initDashboard() {
             }
         };
     }
+    
+   // 3. ATTEMPT AUTO-LOCATION
     updateClock();
     setInterval(updateClock, 1000);
-    const savedZip = localStorage.getItem('skyPanelZip') || "14830";
-    const coords = getCoordinates(savedZip);
-    updateRadar(coords.lat, coords.lon);
-    loadWeather();
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // Success: Use browser coords
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                updateRadar(lat, lon);
+                loadWeatherAuto(lat, lon); // New function below
+                welcomeOverlay.style.display = 'none';
+            },
+            () => {
+                // Denied: Fallback to saved zip or default
+                const savedZip = localStorage.getItem('skyPanelZip') || "14830";
+                const coords = getCoordinates(savedZip);
+                updateRadar(coords.lat, coords.lon);
+                loadWeather();
+            }
+        );
+    } else {
+        // Not supported: Fallback to default
+        const coords = getCoordinates("14830");
+        updateRadar(coords.lat, coords.lon);
+        loadWeather();
+    }
+
     setInterval(loadWeather, 10 * 60 * 1000);
 }
 
