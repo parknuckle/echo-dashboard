@@ -126,7 +126,7 @@ body {
 
 .content {
     flex: 1;
-    margin: 8px 0;
+    margin: 2px 0;
     border-radius: 30px;
     background: #162133;
     position: relative;
@@ -169,7 +169,7 @@ body {
     align-items: center;
     gap: 28px;
     padding: 10px 22px;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
