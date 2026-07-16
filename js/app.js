@@ -277,24 +277,6 @@ function fadeForecast(data) {
 // Future
 // ==========================================================
 
-// ==========================================================
-// WEEKLY FORECAST
-// ==========================================================
-
-// Temporary weekly forecast
-// TODO: Replace with live Open-Meteo data
-// Structural Issue Detected: duplicate variable assignment. This global assignment overrides the weeklyForecast array declared in GLOBAL VARIABLES, and may conflict dynamically with loadWeather().
-weeklyForecast = [
-
-    { time: "Thu", icon: "☀️", temp: "" },
-    { time: "Fri", icon: "🌤", temp: "" },
-    { time: "Sat", icon: "🌧", temp: "" },
-    { time: "Sun", icon: "⛅", temp: "" },
-    { time: "Mon", icon: "☀️", temp: "" },
-    { time: "Tue", icon: "☀️", temp: "" },
-    { time: "Wed", icon: "🌦", temp: "" }
-
-];
 
 // ==========================================================
 // SCREEN ROTATION
@@ -317,22 +299,102 @@ function rotateHeader() {
 }
 
 // ==========================================================
-// WELCOME WIZARD
+// ONBOARDING
 // ==========================================================
 
+// Data
+const onboardingSteps = [
+    {
+        title: "SkyPanel",
+        description: "Beautiful dashboards, made simple.",
+        buttonText: "Next"
+    },
+    {
+        title: "Welcome",
+        description: "Your dashboard is ready to use.",
+        buttonText: "Get Started"
+    }
+];
+
+// State
+let currentStep = 0;
+
+// DOM References
+const obTitle = document.getElementById("onboarding-title");
+const obDescription = document.getElementById("onboarding-description");
 const welcomeButton = document.getElementById("get-started-btn");
+const obDotsContainer = document.getElementById("onboarding-dots");
+const obContainer = document.getElementById("onboarding-content");
+const welcomeOverlay = document.getElementById("welcome-overlay");
 
-if (welcomeButton) {
+// Functions
+function renderStep() {
+    if (!obContainer) return;
 
-    welcomeButton.addEventListener("click", () => {
+    obContainer.style.opacity = "0";
 
-        document.getElementById("welcome-overlay").style.display = "none";
+    setTimeout(() => {
+        const step = onboardingSteps[currentStep];
 
-        startDashboard();
+        if (obTitle) obTitle.textContent = step.title;
+        if (obDescription) obDescription.textContent = step.description;
+        if (welcomeButton) welcomeButton.textContent = step.buttonText;
 
-    });
+        updateDots();
 
+        obContainer.style.opacity = "0";
+
+        requestAnimationFrame(() => {
+            obContainer.style.opacity = "1";
+        });
+
+    }, 300);
 }
+
+function updateDots() {
+    if (!obDotsContainer) return;
+    
+    obDotsContainer.innerHTML = "";
+    
+    onboardingSteps.forEach((_, index) => {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        if (index === currentStep) {
+            dot.classList.add("active");
+        }
+        obDotsContainer.appendChild(dot);
+    });
+}
+
+function nextStep() {
+    if (currentStep < onboardingSteps.length - 1) {
+        currentStep++;
+        renderStep();
+    } else {
+        finishOnboarding();
+    }
+}
+
+function finishOnboarding() {
+    if (welcomeOverlay) {
+        welcomeOverlay.style.transition = "opacity 0.3s ease";
+        welcomeOverlay.style.opacity = "0";
+        setTimeout(() => {
+            welcomeOverlay.style.display = "none";
+            startDashboard();
+        }, 300);
+    }
+}
+
+// Event Listeners
+if (welcomeButton) {
+    welcomeButton.addEventListener("click", () => {
+        nextStep();
+    });
+}
+
+// Initialize the first onboarding screen
+renderStep();
 
 // ==========================================================
 // FULLSCREEN

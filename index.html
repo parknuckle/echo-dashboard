@@ -18,39 +18,31 @@
     <div id="welcome-overlay">
         <div class="welcome-card">
 
+            <img src="assets/skypanel-logo.png" alt="SkyPanel Logo" class="welcome-logo">
+
             <!-- ========================================================= -->
-            <!-- WELCOME WIZARD -->
+            <!-- DYNAMIC ONBOARDING CONTENT -->
             <!-- ========================================================= -->
-            <div id="wizard-content">
+            <div id="onboarding-content">
+                <h2 id="onboarding-title">Beautiful dashboards, made simple.</h2>
+                <p id="onboarding-description">
+                    Designed for Echo Show™, tablets and web browsers.
+                </p>
+            </div> <!-- end onboarding-content -->
 
-                <!-- ========================================================= -->
-                <!-- STEP 1 - WELCOME -->
-                <!-- ========================================================= -->
-                <div class="wizard-step active" id="step-1">
-                    <img src="assets/skypanel-logo.png" alt="SkyPanel Logo" class="welcome-logo">
-                    <h2>Beautiful dashboards, made simple.</h2>
-                    <p class="welcome-subtitle">
-                        Designed for Echo Show™, tablets and web browsers.
-                    </p>
-                    <button id="get-started-btn">
-                        Get Started
-                    </button>
-                    <div class="welcome-version">
-                        Version 1.0
-                    </div> <!-- end welcome-version -->
-                </div> <!-- end step-1 -->
+            <!-- ========================================================= -->
+            <!-- PROGRESS DOTS -->
+            <!-- ========================================================= -->
+            <div class="onboarding-dots" id="onboarding-dots"></div>
 
-                <!-- ========================================================= -->
-                <!-- STEP 2 - LOCATION -->
-                <!-- ========================================================= -->
-                <div class="wizard-step" id="step-2">
-                    <h2>Let's get SkyPanel ready.</h2>
-                </div> <!-- end step-2 -->
+            <button id="get-started-btn">
+                Get Started
+            </button>
+            
+            <div class="welcome-version">
+                Version 1.0
+            </div> <!-- end welcome-version -->
 
-                <!-- STEP 3 - DEVICE (Future) -->
-                <!-- STEP 4 - FULLSCREEN (Future) -->
-
-            </div> <!-- end wizard-content -->
         </div> <!-- end welcome-card -->
     </div> <!-- end welcome-overlay -->
 
