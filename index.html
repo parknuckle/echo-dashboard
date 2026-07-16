@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<!-- ========================================================= -->
+<!-- DOCUMENT HEAD -->
+<!-- ========================================================= -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,89 +12,220 @@
 </head>
 <body>
 
-    <!-- ==========================================================
-         WELCOME OVERLAY
-         ========================================================== -->
+    <!-- ========================================================= -->
+    <!-- WELCOME OVERLAY -->
+    <!-- ========================================================= -->
     <div id="welcome-overlay">
         <div class="welcome-card">
-            
-            <!-- STEP 1 - WELCOME -->
-            <div id="step-1" class="wizard-step active">
-                <img src="assets/skypanel-logo.png" alt="SkyPanel Logo" class="welcome-logo">
-                <h2>Beautiful dashboards, made simple.</h2>
-                <p>Designed for Echo Show™, tablets and web browsers.</p>
-                <button id="get-started-btn">Get Started</button>
-                <div>Version 1.0</div>
-            </div>
 
-            <!-- STEP 2 - LOCATION -->
-            <div id="step-2" class="wizard-step">
-                <h2>Where is your SkyPanel located?</h2>
-                <p>We need your location to show local radar and forecast.</p>
-                <button id="use-location-btn">Use My Current Location</button>
-                
-                <div style="margin-top: 20px;">
-                    <p>Or enter zip code:</p>
-                    <div class="input-group">
-                        <input type="text" id="zip-input" placeholder="e.g. 14830" maxlength="5" pattern="\d*">
-                    </div>
-                    <button id="next-btn-2">Next</button>
-                </div>
-            </div>
+            <!-- ========================================================= -->
+            <!-- WELCOME WIZARD -->
+            <!-- ========================================================= -->
+            <div id="wizard-content">
 
-        </div>
-    </div>
+                <!-- ========================================================= -->
+                <!-- STEP 1 - WELCOME -->
+                <!-- ========================================================= -->
+                <div class="wizard-step active" id="step-1">
+                    <img src="assets/skypanel-logo.png" alt="SkyPanel Logo" class="welcome-logo">
+                    <h2>Beautiful dashboards, made simple.</h2>
+                    <p class="welcome-subtitle">
+                        Designed for Echo Show™, tablets and web browsers.
+                    </p>
+                    <button id="get-started-btn">
+                        Get Started
+                    </button>
+                    <div class="welcome-version">
+                        Version 1.0
+                    </div> <!-- end welcome-version -->
+                </div> <!-- end step-1 -->
 
-    <!-- ==========================================================
-         DASHBOARD
-         ========================================================== -->
+                <!-- ========================================================= -->
+                <!-- STEP 2 - LOCATION -->
+                <!-- ========================================================= -->
+                <div class="wizard-step" id="step-2">
+                    <h2>Let's get SkyPanel ready.</h2>
+                </div> <!-- end step-2 -->
+
+                <!-- STEP 3 - DEVICE (Future) -->
+                <!-- STEP 4 - FULLSCREEN (Future) -->
+
+            </div> <!-- end wizard-content -->
+        </div> <!-- end welcome-card -->
+    </div> <!-- end welcome-overlay -->
+
+    <!-- ========================================================= -->
+    <!-- DASHBOARD -->
+    <!-- ========================================================= -->
     <div class="dashboard">
-        <button id="fullscreen-btn">⛶ Tap Here for Full Screen</button>
+        <button id="fullscreen-btn">
+            ⛶ Tap Here for Full Screen
+        </button>
 
+        <!-- ========================================================= -->
+        <!-- HEADER -->
+        <!-- ========================================================= -->
         <header class="topbar">
+
+            <!-- ========================================================= -->
+            <!-- CLOCK -->
+            <!-- ========================================================= -->
             <div class="clock">
                 <div id="time">
-                    <span id="clock-time">--:--</span>
+                    <span id="clock-time"></span>
                     <span id="clock-ampm"></span>
-                </div>
-                <div id="location">Loading...</div>
-            </div>
+                </div> <!-- end time -->
+                <div id="location">Corning, NY</div>
+            </div> <!-- end clock -->
 
+            <!-- ========================================================= -->
+            <!-- FORECAST STRIP -->
+            <!-- ========================================================= -->
             <div class="forecast-strip">
-                <!-- Forecast items generated here -->
-                <div class="forecast-item" id="hour1"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour2"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour3"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour4"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour5"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour6"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-                <div class="forecast-item" id="hour7"><div class="forecast-time">--</div><div class="forecast-icon"></div><div class="forecast-temp">--</div></div>
-            </div>
-        </header>
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour1-time"></div>
+                    <div class="forecast-icon" id="hour1-icon"></div>
+                    <div class="forecast-temp" id="hour1-temp"></div>
+                    <div class="forecast-low" id="hour1-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour2-time"></div>
+                    <div class="forecast-icon" id="hour2-icon"></div>
+                    <div class="forecast-temp" id="hour2-temp"></div>
+                    <div class="forecast-low" id="hour2-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour3-time"></div>
+                    <div class="forecast-icon" id="hour3-icon"></div>
+                    <div class="forecast-temp" id="hour3-temp"></div>
+                    <div class="forecast-low" id="hour3-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour4-time"></div>
+                    <div class="forecast-icon" id="hour4-icon"></div>
+                    <div class="forecast-temp" id="hour4-temp"></div>
+                    <div class="forecast-low" id="hour4-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour5-time"></div>
+                    <div class="forecast-icon" id="hour5-icon"></div>
+                    <div class="forecast-temp" id="hour5-temp"></div>
+                    <div class="forecast-low" id="hour5-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour6-time"></div>
+                    <div class="forecast-icon" id="hour6-icon"></div>
+                    <div class="forecast-temp" id="hour6-temp"></div>
+                    <div class="forecast-low" id="hour6-low"></div>
+                </div> <!-- end forecast-item -->
+                <div class="forecast-item">
+                    <div class="forecast-time" id="hour7-time"></div>
+                    <div class="forecast-icon" id="hour7-icon"></div>
+                    <div class="forecast-temp" id="hour7-temp"></div>
+                    <div class="forecast-low" id="hour7-low"></div>
+                </div> <!-- end forecast-item -->
+            </div> <!-- end forecast-strip -->
+        </header> <!-- end topbar -->
 
+        <!-- ========================================================= -->
+        <!-- MAIN CONTENT -->
+        <!-- ========================================================= -->
         <main class="content">
             <div id="content-stage">
+
+                <!-- ========================================================= -->
+                <!-- RADAR SCREEN -->
+                <!-- ========================================================= -->
                 <div class="screen active" id="radar-screen">
                     <div class="radar-container">
-                        <iframe id="radarFrame" src="" frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
+                        <iframe
+                            id="radarFrame"
+                            src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
+                            frameborder="0">
+                        </iframe>
+                    </div> <!-- end radar-container -->
+                </div> <!-- end radar-screen -->
 
+                <!-- ========================================================= -->
+                <!-- WEEKLY FORECAST SCREEN -->
+                <!-- ========================================================= -->
+                <div class="screen" id="week-screen">
+                    <div class="week-grid">
+                        <div class="day-column alt">
+                            <div class="day-name">Thu</div>
+                            <div class="day-icon">☀️</div>
+                            <div class="high-temp">82°</div>
+                            <div class="low-temp">61°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column">
+                            <div class="day-name">Fri</div>
+                            <div class="day-icon">🌤</div>
+                            <div class="high-temp">79°</div>
+                            <div class="low-temp">59°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column alt">
+                            <div class="day-name">Sat</div>
+                            <div class="day-icon">🌧</div>
+                            <div class="high-temp">74°</div>
+                            <div class="low-temp">58°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column">
+                            <div class="day-name">Sun</div>
+                            <div class="day-icon">⛅</div>
+                            <div class="high-temp">77°</div>
+                            <div class="low-temp">60°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column alt">
+                            <div class="day-name">Mon</div>
+                            <div class="day-icon">☀️</div>
+                            <div class="high-temp">84°</div>
+                            <div class="low-temp">63°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column">
+                            <div class="day-name">Tue</div>
+                            <div class="day-icon">☀️</div>
+                            <div class="high-temp">86°</div>
+                            <div class="low-temp">64°</div>
+                        </div> <!-- end day-column -->
+                        <div class="day-column alt">
+                            <div class="day-name">Wed</div>
+                            <div class="day-icon">🌦</div>
+                            <div class="high-temp">80°</div>
+                            <div class="low-temp">62°</div>
+                        </div> <!-- end day-column -->
+                    </div> <!-- end week-grid -->
+                </div> <!-- end week-screen -->
+
+            </div> <!-- end content-stage -->
+
+            <!-- ========================================================= -->
+            <!-- NOW CARD -->
+            <!-- ========================================================= -->
             <div class="now-card">
                 <div class="now-label">NOW</div>
                 <div id="temp">--°</div>
                 <div id="conditions">Loading...</div>
-            </div>
-        </main>
+            </div> <!-- end now-card -->
 
+        </main> <!-- end content -->
+
+        <!-- ========================================================= -->
+        <!-- BOTTOM BAR -->
+        <!-- ========================================================= -->
         <footer class="bottombar">
             <span id="wind">💨 Wind --</span>
             <span id="humidity">💧 Humidity --</span>
             <span id="sunrise">🌅 Sunrise --</span>
-        </footer>
-    </div>
+        </footer> <!-- end bottombar -->
 
+    </div> <!-- end dashboard -->
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT FILES -->
+    <!-- ========================================================= -->
+    <script src="js/config.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/keep.js"></script>
+
 </body>
 </html>
