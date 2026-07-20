@@ -90,26 +90,45 @@ let weeklyForecast = [];
 
 function weatherDescription(code) {
 
-    const weather = {
-        0: "☀️ Clear",
-        1: "🌤 Mostly Clear",
-        2: "⛅ Partly Cloudy",
-        3: "☁️ Cloudy",
-        45: "🌫 Fog",
-        48: "🌫 Freezing Fog",
-        51: "🌦 Light Drizzle",
-        53: "🌦 Drizzle",
-        55: "🌦 Heavy Drizzle",
-        61: "🌧 Rain",
-        63: "🌧 Moderate Rain",
-        65: "🌧 Heavy Rain",
-        71: "❄️ Snow",
-        73: "❄️ Moderate Snow",
-        75: "❄️ Heavy Snow",
-        80: "🌦 Rain Showers",
-        81: "🌧 Heavy Showers",
-        95: "⛈ Thunderstorm"
-    };
+  const weather = {
+    0: "☀️ Clear",
+    1: "🌤 Mostly Clear",
+    2: "⛅ Partly Cloudy",
+    3: "☁️ Cloudy",
+
+    45: "🌫 Fog",
+    48: "🌫 Freezing Fog",
+
+    51: "🌦 Light Drizzle",
+    53: "🌦 Drizzle",
+    55: "🌧 Heavy Drizzle",
+
+    56: "🌧 Light Freezing Drizzle",
+    57: "🌧 Freezing Drizzle",
+
+    61: "🌧 Light Rain",
+    63: "🌧 Moderate Rain",
+    65: "🌧 Heavy Rain",
+
+    66: "🌧 Light Freezing Rain",
+    67: "🌧 Freezing Rain",
+
+    71: "❄️ Light Snow",
+    73: "❄️ Moderate Snow",
+    75: "❄️ Heavy Snow",
+    77: "❄️ Snow Grains",
+
+    80: "🌦 Light Rain Showers",
+    81: "🌧 Rain Showers",
+    82: "🌧 Heavy Rain Showers",
+
+    85: "🌨 Light Snow Showers",
+    86: "🌨 Heavy Snow Showers",
+
+    95: "⛈ Thunderstorm",
+    96: "⛈ Thunderstorm with Light Hail",
+    99: "⛈ Thunderstorm with Heavy Hail"
+};
 
     return weather[code] || "Unknown";
 }
