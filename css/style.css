@@ -430,6 +430,13 @@ body {
 /* ==========================================================
    BUTTONS
    ========================================================== */
+#get-started-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 #fullscreen-btn {
     position: fixed;
     top: 50%;

@@ -159,6 +159,22 @@ function updateClock() {
 // LOCATION
 // ==========================================================
 
+function updateLocationDisplay() {
+
+    const locationElement =
+        document.getElementById("location");
+
+    if (!locationElement) return;
+
+    if (userSettings.location.name) {
+
+        locationElement.textContent =
+            userSettings.location.name;
+
+    }
+
+}
+
 function geolocateUser() {
 
     const status = document.getElementById("location-status");
@@ -187,9 +203,15 @@ function geolocateUser() {
                 "Current Location";
 
             saveSettings();
+status.textContent =
+    "📍 Location found";
 
-            status.textContent =
-                "📍 Location found";
+const continueButton =
+    document.getElementById("get-started-btn");
+
+if (continueButton) {
+    continueButton.disabled = false;
+}
 
         },
 
@@ -256,6 +278,13 @@ async function lookupZip() {
         status.textContent =
             `📍 ${userSettings.location.name}`;
 
+            const continueButton =
+    document.getElementById("get-started-btn");
+
+if (continueButton) {
+    continueButton.disabled = false;
+}
+
     }
 
     catch (error) {
@@ -275,8 +304,16 @@ async function lookupZip() {
 
 async function loadWeather() {
 
+    const latitude =
+    userSettings.location.latitude ?? CONFIG.latitude;
+
+const longitude =
+    userSettings.location.longitude ?? CONFIG.longitude;
+
+
+
   const url =
-`https://api.open-meteo.com/v1/forecast?latitude=${CONFIG.latitude}&longitude=${CONFIG.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
     try {
 
         const response = await fetch(url);
@@ -436,8 +473,25 @@ function fadeForecast(data) {
 
 // ==========================================================
 // RADAR
-// Future
 // ==========================================================
+
+function loadRadar() {
+
+    const radarFrame =
+        document.getElementById("radarFrame");
+
+    if (!radarFrame) return;
+
+    const latitude =
+        userSettings.location.latitude ?? CONFIG.latitude;
+
+    const longitude =
+        userSettings.location.longitude ?? CONFIG.longitude;
+
+    radarFrame.src =
+        `https://www.rainviewer.com/map.html?loc=${latitude},${longitude},8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1`;
+
+}
 
 
 // ==========================================================
@@ -501,6 +555,30 @@ function renderStep() {
         if (obTitle) obTitle.textContent = step.title;
         if (obDescription) obDescription.textContent = step.description;
         if (welcomeButton) welcomeButton.textContent = step.buttonText;
+if (welcomeButton) {
+
+    if (currentStep === 1) {
+        welcomeButton.disabled = true;
+    } else {
+        welcomeButton.disabled = false;
+    }
+
+}
+
+
+if (welcomeButton) {
+
+
+    if (currentStep === 1) {
+        welcomeButton.disabled = true;
+    } else {
+        welcomeButton.disabled = false;
+    }
+
+}
+
+
+
 
         const locationSetup = document.getElementById("location-setup");
 
@@ -647,7 +725,9 @@ function startDashboard() {
     updateClock();
     setInterval(updateClock, 1000);
 
+    updateLocationDisplay();
     loadWeather();
+    loadRadar();
     setInterval(loadWeather, 10 * 60 * 1000);
 
     setInterval(rotateHeader, 45000);
