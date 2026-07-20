@@ -10,6 +10,59 @@
 // ==========================================================
 
 // ==========================================================
+// SETTINGS
+// ==========================================================
+
+let userSettings = {
+    onboardingComplete: false,
+    location: {
+        latitude: null,
+        longitude: null,
+        name: ""
+    },
+    units: {},
+    radar: {},
+    dashboard: {},
+    theme: {}
+};
+
+function loadSettings() {
+
+    const saved = localStorage.getItem("skyPanelSettings");
+
+    if (!saved) return;
+
+    try {
+
+        const parsed = JSON.parse(saved);
+
+        userSettings = {
+            ...userSettings,
+            ...parsed
+        };
+
+    }
+
+    catch (err) {
+
+        console.error("Unable to load settings.", err);
+
+    }
+
+}
+
+function saveSettings() {
+
+    localStorage.setItem(
+        "skyPanelSettings",
+        JSON.stringify(userSettings)
+    );
+
+}
+
+
+
+// ==========================================================
 // CONFIGURATION
 // Future
 // ==========================================================
@@ -104,8 +157,117 @@ function updateClock() {
 
 // ==========================================================
 // LOCATION
-// Future
 // ==========================================================
+
+function geolocateUser() {
+
+    const status = document.getElementById("location-status");
+
+    if (!status) return;
+
+    if (!navigator.geolocation) {
+        status.textContent =
+            "Location is not supported by this browser.";
+        return;
+    }
+
+    status.textContent = "Finding your location...";
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+            userSettings.location.latitude =
+                position.coords.latitude;
+
+            userSettings.location.longitude =
+                position.coords.longitude;
+
+            userSettings.location.name =
+                "Current Location";
+
+            saveSettings();
+
+            status.textContent =
+                "📍 Location found";
+
+        },
+
+        function(error) {
+
+            console.error(
+                "Geolocation failed:",
+                error
+            );
+
+            status.textContent =
+                "Unable to access your location. Try entering your ZIP code.";
+
+        }
+
+    );
+
+}
+
+
+
+
+
+async function lookupZip() {
+
+    const zipInput = document.getElementById("zip-input");
+    const status = document.getElementById("location-status");
+
+    if (!zipInput || !status) return;
+
+    const zip = zipInput.value.trim();
+
+    if (zip.length !== 5 || isNaN(zip)) {
+        status.textContent = "Please enter a valid 5-digit ZIP code.";
+        return;
+    }
+
+    status.textContent = "Searching...";
+
+    try {
+
+        const response = await fetch(
+            `https://api.zippopotam.us/us/${zip}`
+        );
+
+        if (!response.ok) {
+            throw new Error("ZIP code not found");
+        }
+
+        const data = await response.json();
+        const place = data.places[0];
+
+        userSettings.location.latitude =
+            parseFloat(place.latitude);
+
+        userSettings.location.longitude =
+            parseFloat(place.longitude);
+
+        userSettings.location.name =
+            `${place["place name"]}, ${place["state abbreviation"]}`;
+
+        saveSettings();
+
+        status.textContent =
+            `📍 ${userSettings.location.name}`;
+
+    }
+
+    catch (error) {
+
+        console.error("ZIP lookup failed:", error);
+
+        status.textContent =
+            "ZIP code not found. Please try again.";
+
+    }
+
+}
 
 // ==========================================================
 // WEATHER
@@ -310,9 +472,9 @@ const onboardingSteps = [
         buttonText: "Next"
     },
     {
-        title: "Welcome",
-        description: "Your dashboard is ready to use.",
-        buttonText: "Get Started"
+        title: "Choose Your Location",
+        description: "Enter your ZIP code to set your local weather.",
+        buttonText: "Continue"
     }
 ];
 
@@ -339,6 +501,19 @@ function renderStep() {
         if (obTitle) obTitle.textContent = step.title;
         if (obDescription) obDescription.textContent = step.description;
         if (welcomeButton) welcomeButton.textContent = step.buttonText;
+
+        const locationSetup = document.getElementById("location-setup");
+
+if (locationSetup) {
+
+    if (currentStep === 1) {
+        locationSetup.style.display = "block";
+    } else {
+        locationSetup.style.display = "none";
+    }
+
+}
+
 
         updateDots();
 
@@ -435,9 +610,37 @@ if (fsButton){
 // Future
 // ==========================================================
 
+
+const useLocationButton =
+    document.getElementById("use-location-btn");
+
+if (useLocationButton) {
+
+    useLocationButton.addEventListener(
+        "click",
+        geolocateUser
+    );
+
+}
+
+
+const zipSearchButton =
+    document.getElementById("zip-search-btn");
+
+if (zipSearchButton) {
+
+    zipSearchButton.addEventListener(
+        "click",
+        lookupZip
+    );
+
+}
+
+
 // ==========================================================
 // APPLICATION STARTUP
 // ==========================================================
+loadSettings();  
 
 function startDashboard() {
 

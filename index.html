@@ -23,12 +23,43 @@
             <!-- ========================================================= -->
             <!-- DYNAMIC ONBOARDING CONTENT -->
             <!-- ========================================================= -->
-            <div id="onboarding-content">
-                <h2 id="onboarding-title">Beautiful dashboards, made simple.</h2>
-                <p id="onboarding-description">
-                    Designed for Echo Show™, tablets and web browsers.
-                </p>
-            </div> <!-- end onboarding-content -->
+           <div id="onboarding-content">
+    <h2 id="onboarding-title">Beautiful dashboards, made simple.</h2>
+
+    <p id="onboarding-description">
+        Designed for Echo Show™, tablets and web browsers.
+    </p>
+
+    <!-- LOCATION SETUP -->
+    <div id="location-setup" style="display: none;">
+
+    <button id="use-location-btn">
+        📍 Use My Current Location
+    </button>
+
+    <div class="location-divider">
+        OR
+    </div>
+
+    <div class="zip-setup">
+        <input
+            type="text"
+            id="zip-input"
+            maxlength="5"
+            inputmode="numeric"
+            placeholder="ZIP Code"
+        >
+
+        <button id="zip-search-btn">
+            Search
+        </button>
+    </div>
+
+    <div id="location-status"></div>
+
+</div>
+
+</div> <!-- end onboarding-content -->
 
             <!-- ========================================================= -->
             <!-- PROGRESS DOTS -->
