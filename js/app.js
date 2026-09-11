@@ -18,7 +18,8 @@ let userSettings = {
     location: {
         latitude: null,
         longitude: null,
-        name: ""
+        name: "",
+        zip: ""
     },
     units: {},
     radar: {},
@@ -38,7 +39,13 @@ function loadSettings() {
 
         userSettings = {
             ...userSettings,
-            ...parsed
+            ...parsed,
+            // Deep-merge location so old saved settings
+            // without a zip property keep working.
+            location: {
+                ...userSettings.location,
+                ...(parsed.location || {})
+            }
         };
 
     }
@@ -60,29 +67,24 @@ function saveSettings() {
 
 }
 
-
-
-// ==========================================================
-// CONFIGURATION
-// Future
-// ==========================================================
-
-// ==========================================================
-// CONSTANTS
-// Future
-// ==========================================================
-
 // ==========================================================
 // GLOBAL VARIABLES
 // ==========================================================
 
 let showingWeek = false;
 
-// Stores the live hourly forecast
+// Live forecasts
 let hourlyForecast = [];
-
-// Stores the live weekly forecast
 let weeklyForecast = [];
+
+// Staged location while the location screen is open.
+// The active userSettings.location is untouched until
+// the user presses Continue.
+let pendingLocation = null;
+
+// Whether the location overlay is open for first-time
+// onboarding or Settings → Change Location.
+let locationScreenMode = "onboarding";
 
 // ==========================================================
 // UTILITY FUNCTIONS
@@ -141,10 +143,10 @@ function updateClock() {
 
     const now = new Date();
 
-   const clock = now.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
+    const clock = now.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
     });
 
     const [timePart, ampm] = clock.split(" ");
@@ -155,8 +157,8 @@ function updateClock() {
         day: "numeric"
     });
 
-   document.getElementById("clock-time").textContent = timePart;
-   document.getElementById("clock-ampm").textContent = ampm;
+    document.getElementById("clock-time").textContent = timePart;
+    document.getElementById("clock-ampm").textContent = ampm;
 
     let dateElement = document.getElementById("date");
 
@@ -194,6 +196,17 @@ function updateLocationDisplay() {
 
 }
 
+function enableContinueButton() {
+
+    const continueButton =
+        document.getElementById("get-started-btn");
+
+    if (continueButton) {
+        continueButton.disabled = false;
+    }
+
+}
+
 function geolocateUser() {
 
     const status = document.getElementById("location-status");
@@ -212,25 +225,19 @@ function geolocateUser() {
 
         function(position) {
 
-            userSettings.location.latitude =
-                position.coords.latitude;
+            // Stage the location. The active saved
+            // location is not changed until Continue.
+            pendingLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                name: "Current Location",
+                // Geolocation is not ZIP-based; clear
+                // any stale ZIP.
+                zip: ""
+            };
 
-            userSettings.location.longitude =
-                position.coords.longitude;
-
-            userSettings.location.name =
-                "Current Location";
-
-            saveSettings();
-status.textContent =
-    "📍 Location found";
-
-const continueButton =
-    document.getElementById("get-started-btn");
-
-if (continueButton) {
-    continueButton.disabled = false;
-}
+            status.textContent = "📍 Location found";
+            enableContinueButton();
 
         },
 
@@ -249,10 +256,6 @@ if (continueButton) {
     );
 
 }
-
-
-
-
 
 async function lookupZip() {
 
@@ -283,26 +286,19 @@ async function lookupZip() {
         const data = await response.json();
         const place = data.places[0];
 
-        userSettings.location.latitude =
-            parseFloat(place.latitude);
-
-        userSettings.location.longitude =
-            parseFloat(place.longitude);
-
-        userSettings.location.name =
-            `${place["place name"]}, ${place["state abbreviation"]}`;
-
-        saveSettings();
+        // Stage the location. The active saved
+        // location is not changed until Continue.
+        pendingLocation = {
+            latitude: parseFloat(place.latitude),
+            longitude: parseFloat(place.longitude),
+            name: `${place["place name"]}, ${place["state abbreviation"]}`,
+            zip: zip
+        };
 
         status.textContent =
-            `📍 ${userSettings.location.name}`;
+            `📍 ${pendingLocation.name}`;
 
-            const continueButton =
-    document.getElementById("get-started-btn");
-
-if (continueButton) {
-    continueButton.disabled = false;
-}
+        enableContinueButton();
 
     }
 
@@ -324,121 +320,117 @@ if (continueButton) {
 async function loadWeather() {
 
     const latitude =
-    userSettings.location.latitude ?? CONFIG.latitude;
+        userSettings.location.latitude ?? CONFIG.latitude;
 
-const longitude =
-    userSettings.location.longitude ?? CONFIG.longitude;
+    const longitude =
+        userSettings.location.longitude ?? CONFIG.longitude;
 
-
-
-  const url =
+    const url =
 `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=sunrise,weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+
     try {
 
         const response = await fetch(url);
 
         const data = await response.json();
 
-// Current hour
-const now = new Date();
-const currentHour = now.getHours();
+        // Current hour
+        const now = new Date();
+        const currentHour = now.getHours();
 
-// Find the current hour in the API data
-const startIndex = data.hourly.time.findIndex(time => {
-    return new Date(time).getHours() === currentHour;
-});
+        // Find the current hour in the API data
+        const startIndex = data.hourly.time.findIndex(time => {
+            return new Date(time).getHours() === currentHour;
+        });
 
-// Update the next seven hours
+        // Build the next seven hours
+        hourlyForecast = [];
+        for (let i = 1; i <= 7; i++) {
 
-hourlyForecast = [];
-for (let i = 1; i <= 7; i++) {
+            const index = startIndex + i;
 
-    const index = startIndex + i;
+            const hour = new Date(data.hourly.time[index]);
 
-    const hour = new Date(data.hourly.time[index]);
+            const hourText = hour.toLocaleTimeString([], {
+                hour: "numeric"
+            });
 
-    const hourText = hour.toLocaleTimeString([], {
-        hour: "numeric"
-    });
+            hourlyForecast.push({
 
-   hourlyForecast.push({
+                time: hourText,
 
-    time: hourText,
+                icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
 
-    icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
+                temp: Math.round(data.hourly.temperature_2m[index]) + "°"
 
-    temp: Math.round(data.hourly.temperature_2m[index]) + "°"
+            });
 
-});
+        }
 
-}   // <-- end of for loop
+        if (!showingWeek) {
 
-if (!showingWeek) {
+            displayForecast(hourlyForecast);
+        }
 
-    displayForecast(hourlyForecast);
+        // Build the weekly forecast
+        weeklyForecast = [];
+
+        for (let i = 0; i < 7; i++) {
+
+            const day = new Date(data.daily.time[i] + "T12:00:00");
+
+            const dayName = day.toLocaleDateString([], {
+                weekday: "short"
+            });
+
+            weeklyForecast.push({
+
+                time: dayName,
+
+                icon: weatherDescription(data.daily.weather_code[i]).split(" ")[0],
+
+                temp: Math.round(data.daily.temperature_2m_max[i]) + "°",
+
+                low: Math.round(data.daily.temperature_2m_min[i]) + "°"
+            });
+
+        }
+
+        // Temperature
+        document.getElementById("temp").textContent =
+            Math.round(data.current.temperature_2m) + "°";
+
+        // Conditions
+        document.getElementById("conditions").textContent =
+            weatherDescription(data.current.weather_code);
+
+        // Wind
+        document.getElementById("wind").textContent =
+            "💨 Wind " + Math.round(data.current.wind_speed_10m) + " mph";
+
+        // Humidity
+        document.getElementById("humidity").textContent =
+            "💧 Humidity " + data.current.relative_humidity_2m + "%";
+
+        // Sunrise
+        const sunrise = new Date(data.daily.sunrise[0]);
+
+        document.getElementById("sunrise").textContent =
+            "🌅 Sunrise " +
+            sunrise.toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit"
+            });
+
     }
 
-    // Build the weekly forecast
-
-weeklyForecast = [];
-
-for (let i = 0; i < 7; i++) {
-
-   const day = new Date(data.daily.time[i] + "T12:00:00");
-
-    const dayName = day.toLocaleDateString([], {
-        weekday: "short"
-    });
-
-    weeklyForecast.push({
-
-        time: dayName,
-
-        icon: weatherDescription(data.daily.weather_code[i]).split(" ")[0],
-
-        temp: Math.round(data.daily.temperature_2m_max[i]) + "°",
-
-        low: Math.round(data.daily.temperature_2m_min[i]) + "°"
-    });
-
-}
-
-// Temperature
-
-document.getElementById("temp").textContent =
-    Math.round(data.current.temperature_2m) + "°";
-
-// Weather Conditions (temporary)
-document.getElementById("conditions").textContent =
-    weatherDescription(data.current.weather_code);
-
-// Wind
-document.getElementById("wind").textContent =
-    "💨 Wind " + Math.round(data.current.wind_speed_10m) + " mph";
-
-// Humidity
-document.getElementById("humidity").textContent =
-    "💧 Humidity " + data.current.relative_humidity_2m + "%";
-
-// Sunrise
-const sunrise = new Date(data.daily.sunrise[0]);
-
-document.getElementById("sunrise").textContent =
-    "🌅 Sunrise " +
-    sunrise.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
-    });
-
- }
-
-    catch(error){
+    catch (error) {
 
         console.log(error);
 
     }
 
-}   // <-- loadWeather() ends here
+}
 
 // ==========================================================
 // FORECAST
@@ -460,15 +452,15 @@ function displayForecast(data) {
         document.getElementById(`hour${i}-low`).textContent =
             data[i - 1].low || "";
 
-         const item = document.querySelectorAll(".forecast-item")[i - 1];
+        const item = document.querySelectorAll(".forecast-item")[i - 1];
 
-       item.classList.remove("week-panel");
+        item.classList.remove("week-panel");
 
-    if (data[i - 1].low) {
+        if (data[i - 1].low) {
 
-       item.classList.add("week-panel");
+            item.classList.add("week-panel");
 
-}   
+        }
 
     }
 
@@ -512,7 +504,6 @@ function loadRadar() {
 
 }
 
-
 // ==========================================================
 // SCREEN ROTATION
 // ==========================================================
@@ -534,139 +525,148 @@ function rotateHeader() {
 }
 
 // ==========================================================
-// ONBOARDING
+// ONBOARDING / LOCATION SCREEN
+// Single step: Choose Your Location.
+// Also reused for Settings → Change Location.
 // ==========================================================
 
-// Data
-const onboardingSteps = [
-    {
-        title: "SkyPanel",
-        description: "Beautiful dashboards, made simple.",
-        buttonText: "Next"
-    },
-    {
-        title: "Choose Your Location",
-        description: "Enter your ZIP code to set your local weather.",
-        buttonText: "Continue"
-    }
-];
-
-// State
-let currentStep = 0;
-
-// DOM References
-const obTitle = document.getElementById("onboarding-title");
-const obDescription = document.getElementById("onboarding-description");
 const welcomeButton = document.getElementById("get-started-btn");
-const obDotsContainer = document.getElementById("onboarding-dots");
-const obContainer = document.getElementById("onboarding-content");
 const welcomeOverlay = document.getElementById("welcome-overlay");
 
-// Functions
-function renderStep() {
-    if (!obContainer) return;
+function openLocationScreen(mode) {
 
-    obContainer.style.opacity = "0";
+    locationScreenMode = mode;
+    pendingLocation = null;
 
-    setTimeout(() => {
-        const step = onboardingSteps[currentStep];
+    const status = document.getElementById("location-status");
+    const zipInput = document.getElementById("zip-input");
 
-        if (obTitle) obTitle.textContent = step.title;
-        if (obDescription) obDescription.textContent = step.description;
-        if (welcomeButton) welcomeButton.textContent = step.buttonText;
-if (welcomeButton) {
+    // Reset the location screen state.
+    if (status) status.textContent = "";
+    if (zipInput) zipInput.value = "";
 
-    if (currentStep === 1) {
-        welcomeButton.disabled = true;
-    } else {
-        welcomeButton.disabled = false;
+    // Pre-fill the saved ZIP for Change Location,
+    // but never auto-search or auto-submit it.
+    if (mode === "change-location" && zipInput && userSettings.location.zip) {
+        zipInput.value = userSettings.location.zip;
+    }
+
+    if (welcomeButton) welcomeButton.disabled = true;
+
+    if (welcomeOverlay) {
+        welcomeOverlay.style.display = "flex";
+        welcomeOverlay.style.opacity = "1";
     }
 
 }
 
+// Called directly from the Continue button's click
+// handler. Commits the staged location.
+function finishLocationScreen() {
 
-if (welcomeButton) {
+    // Safety: nothing selected yet.
+    if (!pendingLocation) return;
 
+    // Commit the staged location as the active location.
+    userSettings.location = {
+        ...pendingLocation
+    };
+    pendingLocation = null;
 
-    if (currentStep === 1) {
-        welcomeButton.disabled = true;
-    } else {
-        welcomeButton.disabled = false;
-    }
+    saveSettings();
 
-}
+    if (locationScreenMode === "onboarding") {
 
+        userSettings.onboardingComplete = true;
+        saveSettings();
 
-
-
-        const locationSetup = document.getElementById("location-setup");
-
-if (locationSetup) {
-
-    if (currentStep === 1) {
-        locationSetup.style.display = "block";
-    } else {
-        locationSetup.style.display = "none";
-    }
-
-}
-
-
-        updateDots();
-
-        obContainer.style.opacity = "0";
-
-        requestAnimationFrame(() => {
-            obContainer.style.opacity = "1";
+        hideLocationOverlay(() => {
+            startDashboard();
         });
 
-    }, 300);
-}
+        // Fullscreen attempt is made synchronously here,
+        // inside the user gesture (no setTimeout).
+        requestFullscreenIfPossible();
 
-function updateDots() {
-    if (!obDotsContainer) return;
-    
-    obDotsContainer.innerHTML = "";
-    
-    onboardingSteps.forEach((_, index) => {
-        const dot = document.createElement("div");
-        dot.classList.add("dot");
-        if (index === currentStep) {
-            dot.classList.add("active");
-        }
-        obDotsContainer.appendChild(dot);
-    });
-}
-
-function nextStep() {
-    if (currentStep < onboardingSteps.length - 1) {
-        currentStep++;
-        renderStep();
     } else {
-        finishOnboarding();
+
+        // Change Location: onboarding stays complete.
+        hideLocationOverlay(() => {
+
+            // Reuse the existing update/load functions
+            // for the newly selected location.
+            updateLocationDisplay();
+            loadWeather();
+            loadRadar();
+
+        });
+
     }
+
 }
 
-function finishOnboarding() {
-    if (welcomeOverlay) {
-        welcomeOverlay.style.transition = "opacity 0.3s ease";
-        welcomeOverlay.style.opacity = "0";
-        setTimeout(() => {
-            welcomeOverlay.style.display = "none";
-            startDashboard();
-        }, 300);
+function hideLocationOverlay(callback) {
+
+    if (!welcomeOverlay) {
+        if (callback) callback();
+        return;
     }
+
+    welcomeOverlay.style.transition = "opacity 0.3s ease";
+    welcomeOverlay.style.opacity = "0";
+
+    setTimeout(() => {
+        welcomeOverlay.style.display = "none";
+        if (callback) callback();
+    }, 300);
+
 }
 
 // Event Listeners
 if (welcomeButton) {
     welcomeButton.addEventListener("click", () => {
-        nextStep();
+        finishLocationScreen();
     });
 }
 
-// Initialize the first onboarding screen
-renderStep();
+// ==========================================================
+// SETTINGS
+// ==========================================================
+
+const settingsOverlay = document.getElementById("settings-overlay");
+const settingsGear = document.getElementById("settings-gear");
+const settingsCloseBtn = document.getElementById("settings-close-btn");
+const changeLocationBtn = document.getElementById("change-location-btn");
+
+if (settingsGear) {
+    settingsGear.addEventListener("click", () => {
+        if (settingsOverlay) {
+            settingsOverlay.style.display = "flex";
+        }
+    });
+}
+
+if (settingsCloseBtn) {
+    settingsCloseBtn.addEventListener("click", () => {
+        if (settingsOverlay) {
+            settingsOverlay.style.display = "none";
+        }
+    });
+}
+
+if (changeLocationBtn) {
+    changeLocationBtn.addEventListener("click", () => {
+
+        // Close Settings, then reuse the existing
+        // location screen. No second location system.
+        if (settingsOverlay) {
+            settingsOverlay.style.display = "none";
+        }
+
+        openLocationScreen("change-location");
+
+    });
+}
 
 // ==========================================================
 // FULLSCREEN
@@ -674,23 +674,42 @@ renderStep();
 
 const fsButton = document.getElementById("fullscreen-btn");
 
-if (fsButton){
+async function requestFullscreenIfPossible() {
+
+    try {
+
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            if (fsButton) fsButton.style.display = "none";
+        }
+
+    }
+
+    catch (err) {
+        // Fullscreen not permitted/supported.
+        // The fullscreen button remains as the fallback.
+        console.log("Fullscreen not permitted:", err);
+    }
+
+}
+
+if (fsButton) {
 
     fsButton.addEventListener("click", async () => {
 
-        try{
+        try {
 
-            if(!document.fullscreenElement){
+            if (!document.fullscreenElement) {
 
                 await document.documentElement.requestFullscreen();
 
-                fsButton.style.display="none";
+                fsButton.style.display = "none";
 
             }
 
         }
 
-        catch(err){
+        catch (err) {
 
             alert("Fullscreen isn't supported on this device.");
 
@@ -704,9 +723,7 @@ if (fsButton){
 
 // ==========================================================
 // EVENT LISTENERS
-// Future
 // ==========================================================
-
 
 const useLocationButton =
     document.getElementById("use-location-btn");
@@ -720,7 +737,6 @@ if (useLocationButton) {
 
 }
 
-
 const zipSearchButton =
     document.getElementById("zip-search-btn");
 
@@ -733,11 +749,9 @@ if (zipSearchButton) {
 
 }
 
-
 // ==========================================================
 // APPLICATION STARTUP
 // ==========================================================
-loadSettings();  
 
 function startDashboard() {
 
@@ -750,5 +764,24 @@ function startDashboard() {
     setInterval(loadWeather, 10 * 60 * 1000);
 
     setInterval(rotateHeader, 45000);
+
+}
+
+loadSettings();
+
+// Returning users with completed onboarding and a valid
+// saved location go straight to the dashboard.
+if (
+    userSettings.onboardingComplete &&
+    userSettings.location.latitude !== null &&
+    userSettings.location.longitude !== null
+) {
+
+    startDashboard();
+
+} else {
+
+    // First-time user: go directly to Choose Your Location.
+    openLocationScreen("onboarding");
 
 }
