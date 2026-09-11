@@ -582,10 +582,6 @@ body {
    ========================================================== */
 @media (max-width: 1024px) {
 
-    .topbar {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
 
     .forecast-strip {
         justify-content: center;
