@@ -44,7 +44,8 @@ body {
     background: #0b1220;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    overflow-y: auto;
     z-index: 100000;
 }
 
