@@ -586,7 +586,7 @@ body {
 
     .forecast-strip {
         justify-content: center;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
 
     .bottombar {
