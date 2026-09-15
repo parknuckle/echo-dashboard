@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyPanel</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.10.0/dist/maplibre-gl.css">
 </head>
 
 <body>
@@ -176,12 +177,19 @@
 
                 <div class="screen active" id="radar-screen">
                     <div class="radar-container">
-                        <iframe
-                            id="radarFrame"
-                            src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
-                            frameborder="0">
-                        </iframe>
-                    </div>
+
+    <!-- RAINVIEWER - KEEPING AS BACKUP
+    <iframe
+        id="radarFrame"
+        src="https://www.rainviewer.com/map.html?loc=42.1429,-77.0547,8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1"
+        frameborder="0">
+    </iframe>
+    -->
+
+    <!-- NOAA / NWS INTERACTIVE RADAR -->
+<div id="radarMap"></div>
+        
+</div>
                 </div>
 
                 <div class="screen" id="week-screen">
@@ -251,8 +259,9 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@5.10.0/dist/maplibre-gl.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/keep.js"></script>
+    <script src="js/keep.js"></script>   
 
 </body>
 </html>
