@@ -266,28 +266,40 @@ async function loadWeather() {
             console.log("Start Index:", startIndex);
             console.log("Hourly Times:", data.hourly.time);
 
-        // Update the next seven hours
-        hourlyForecast = [];
-        for (let i = 1; i <= 7; i++) {
+       // Build the next seven hours
+hourlyForecast = [];
+for (let i = 1; i <= 7; i++) {
 
-            const index = startIndex + i;
-            const hour = new Date(data.hourly.time[index]);
+    const index = startIndex + i;
 
-            const hourText = hour.toLocaleTimeString([], {
-                hour: "numeric"
-            });
+    const hour = new Date(data.hourly.time[index]);
 
-            hourlyForecast.push({
-                time: hourText,
-                icon: weatherDescription(data.hourly.weather_code[index]).split(" ")[0],
-                temp: Math.round(data.hourly.temperature_2m[index]) + "°"
-            });
+    const hourText = hour.toLocaleTimeString([], {
+        hour: "numeric"
+    });
 
-        }   // <-- end of for loop
-           console.log("Hourly Forecast:", hourlyForecast);   
-        if (!showingWeek) {
-            displayForecast(hourlyForecast);
-        }
+    let icon =
+        weatherDescription(data.hourly.weather_code[index]).split(" ")[0];
+
+    // Use a moon for clear nighttime hours.
+    if (
+        data.hourly.weather_code[index] === 0 &&
+        (hour.getHours() < 6 || hour.getHours() >= 19)
+    ) {
+        icon = "🌙";
+    }
+
+    hourlyForecast.push({
+
+        time: hourText,
+
+        icon: icon,
+
+        temp: Math.round(data.hourly.temperature_2m[index]) + "°"
+
+    });
+
+}
 
         // Build the weekly forecast
         weeklyForecast = [];

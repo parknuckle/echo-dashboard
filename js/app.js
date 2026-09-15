@@ -488,10 +488,10 @@ function fadeForecast(data) {
 
 function loadRadar() {
 
-    const radarFrame =
-        document.getElementById("radarFrame");
+    const radarMapElement =
+        document.getElementById("radarMap");
 
-    if (!radarFrame) return;
+    if (!radarMapElement) return;
 
     const latitude =
         userSettings.location.latitude ?? CONFIG.latitude;
@@ -499,8 +499,147 @@ function loadRadar() {
     const longitude =
         userSettings.location.longitude ?? CONFIG.longitude;
 
-    radarFrame.src =
-        `https://www.rainviewer.com/map.html?loc=${latitude},${longitude},8&oFa=1&oC=1&oU=0&oCS=1&oF=0&oAP=1&c=3&o=83&lm=1&layer=radar&sm=1&sn=1`;
+    // Clean up an existing radar map/timer
+    if (window.skyPanelRadarTimer) {
+        clearInterval(window.skyPanelRadarTimer);
+        window.skyPanelRadarTimer = null;
+    }
+
+    if (window.skyPanelRadarMap) {
+        window.skyPanelRadarMap.remove();
+        window.skyPanelRadarMap = null;
+    }
+
+    const map =
+        new maplibregl.Map({
+            container: "radarMap",
+            style: "https://tiles.openfreemap.org/styles/dark",
+            center: [longitude, latitude],
+            zoom: 8
+        });
+
+    window.skyPanelRadarMap = map;
+
+    map.addControl(
+        new maplibregl.NavigationControl(),
+        "top-right"
+    );
+
+    map.on("load", () => {
+
+               // NOAA radar frames
+        const frames = [];
+
+        function rounded5(d) {
+            const x = new Date(d);
+            x.setUTCSeconds(0, 0);
+            x.setUTCMinutes(Math.floor(x.getUTCMinutes() / 5) * 5);
+            return x;
+        }
+
+        const now = rounded5(new Date(Date.now() - (5 * 60 * 1000)));
+
+        // 13 frames covering approximately the past hour
+        for (let i = 12; i >= 0; i--) {
+            const timestamp =
+                new Date(now.getTime() - (i * 5 * 60 * 1000));
+
+            frames.push(timestamp.toISOString());
+        }
+
+     function radarTileUrl(isoTime) {
+    return 'https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity_time/ImageServer/WMSServer' +
+        '?service=WMS' +
+        '&request=GetMap' +
+        '&version=1.3.0' +
+        '&layers=radar_base_reflectivity_time' +
+        '&styles=' +
+        '&format=image/png' +
+        '&transparent=true' +
+        '&crs=EPSG:3857' +
+        '&time=' + encodeURIComponent(isoTime) +
+        '&bbox={bbox-epsg-3857}' +
+        '&width=512' +
+        '&height=512';
+}
+
+        map.addSource("noaa-radar", {
+            type: "raster",
+            tiles: [radarTileUrl(frames[0])],
+            tileSize: 512
+        });
+
+        map.addLayer({
+            id: "noaa-radar-layer",
+            type: "raster",
+            source: "noaa-radar",
+            paint: {
+                "raster-opacity": 0.9
+            }
+        });
+
+        // Make city/place labels easier to see
+        map.getStyle().layers.forEach(layer => {
+
+            if (
+                layer.type === "symbol" &&
+                layer.layout &&
+                layer.layout["text-field"] &&
+                /place/i.test(layer.id)
+            ) {
+                map.setPaintProperty(
+                    layer.id,
+                    "text-color",
+                    "#f4f7fb"
+                );
+
+                map.setPaintProperty(
+                    layer.id,
+                    "text-halo-color",
+                    "#111111"
+                );
+
+                map.setPaintProperty(
+                    layer.id,
+                    "text-halo-width",
+                    1.1
+                );
+            }
+
+        });
+
+        // Make map lines more visible
+        map.getStyle().layers.forEach(layer => {
+
+            if (
+                layer.type === "line" &&
+                layer.paint &&
+                map.getPaintProperty(layer.id, "line-opacity") !== undefined
+            ) {
+                map.setPaintProperty(
+                    layer.id,
+                    "line-opacity",
+                    0.96
+                );
+            }
+
+        });
+
+        let frameIndex = 0;
+
+        window.skyPanelRadarTimer =
+            setInterval(() => {
+
+                frameIndex =
+                    (frameIndex + 1) % frames.length;
+
+                map.getSource("noaa-radar").setTiles([
+                    radarTileUrl(frames[frameIndex])
+                ]);
+
+            }, 1400);
+
+    });
 
 }
 
