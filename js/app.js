@@ -485,7 +485,6 @@ function fadeForecast(data) {
 // ==========================================================
 // RADAR
 // ==========================================================
-
 function loadRadar() {
 
     const radarMapElement =
@@ -525,119 +524,153 @@ function loadRadar() {
         "top-right"
     );
 
-    map.on("load", () => {
+    map.on("load", async () => {
 
-               // NOAA radar frames
-        const frames = [];
+        try {
 
-        function rounded5(d) {
-            const x = new Date(d);
-            x.setUTCSeconds(0, 0);
-            x.setUTCMinutes(Math.floor(x.getUTCMinutes() / 5) * 5);
-            return x;
-        }
+            // Get the actual radar frames currently available
+            // from LibreWXR instead of constructing timestamps.
+            const response =
+                await fetch(
+                    "https://api.librewxr.net/public/weather-maps.json"
+                );
 
-        const now = rounded5(new Date(Date.now() - (5 * 60 * 1000)));
+            if (!response.ok) {
+                throw new Error(
+                    "LibreWXR metadata request failed: " +
+                    response.status
+                );
+            }
 
-        // 13 frames covering approximately the past hour
-        for (let i = 12; i >= 0; i--) {
-            const timestamp =
-                new Date(now.getTime() - (i * 5 * 60 * 1000));
+            const data = await response.json();
 
-            frames.push(timestamp.toISOString());
-        }
+            const radarFrames =
+                data?.radar?.past || [];
 
-     function radarTileUrl(isoTime) {
-    return 'https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity_time/ImageServer/WMSServer' +
-        '?service=WMS' +
-        '&request=GetMap' +
-        '&version=1.3.0' +
-        '&layers=radar_base_reflectivity_time' +
-        '&styles=' +
-        '&format=image/png' +
-        '&transparent=true' +
-        '&crs=EPSG:3857' +
-        '&time=' + encodeURIComponent(isoTime) +
-        '&bbox={bbox-epsg-3857}' +
-        '&width=512' +
-        '&height=512';
+            if (!radarFrames.length) {
+                throw new Error(
+                    "LibreWXR returned no radar frames."
+                );
+            }
+
+            // Use the most recent 13 available frames.
+            const frames =
+                radarFrames.slice(-13);
+
+          function radarTileUrl(frame) {
+
+    return (
+        "https://api.librewxr.net" +
+        frame.path +
+        "/512/{z}/{x}/{y}/10/1_1.png"
+    );
 }
 
-        map.addSource("noaa-radar", {
-            type: "raster",
-            tiles: [radarTileUrl(frames[0])],
-            tileSize: 512
-        });
+            map.addSource("librewxr-radar", {
+                type: "raster",
+                tiles: [
+                    radarTileUrl(frames[frames.length - 1])
+                ],
+                tileSize: 512
+            });
 
-        map.addLayer({
-            id: "noaa-radar-layer",
-            type: "raster",
-            source: "noaa-radar",
-            paint: {
-                "raster-opacity": 0.9
-            }
-        });
+            map.addLayer({
+                id: "librewxr-radar-layer",
+                type: "raster",
+                source: "librewxr-radar",
+                paint: {
+                    "raster-opacity": 0.9
+                }
+            });
 
-        // Make city/place labels easier to see
-        map.getStyle().layers.forEach(layer => {
+            // Make city/place labels easier to see
+            map.getStyle().layers.forEach(layer => {
 
-            if (
-                layer.type === "symbol" &&
-                layer.layout &&
-                layer.layout["text-field"] &&
-                /place/i.test(layer.id)
-            ) {
-                map.setPaintProperty(
-                    layer.id,
-                    "text-color",
-                    "#f4f7fb"
-                );
+                if (
+                    layer.type === "symbol" &&
+                    layer.layout &&
+                    layer.layout["text-field"] &&
+                    /place/i.test(layer.id)
+                ) {
 
-                map.setPaintProperty(
-                    layer.id,
-                    "text-halo-color",
-                    "#111111"
-                );
+                    map.setPaintProperty(
+                        layer.id,
+                        "text-color",
+                        "#f4f7fb"
+                    );
 
-                map.setPaintProperty(
-                    layer.id,
-                    "text-halo-width",
-                    1.1
-                );
-            }
+                    map.setPaintProperty(
+                        layer.id,
+                        "text-halo-color",
+                        "#111111"
+                    );
 
-        });
+                    map.setPaintProperty(
+                        layer.id,
+                        "text-halo-width",
+                        1.1
+                    );
 
-        // Make map lines more visible
-        map.getStyle().layers.forEach(layer => {
+                }
 
-            if (
-                layer.type === "line" &&
-                layer.paint &&
-                map.getPaintProperty(layer.id, "line-opacity") !== undefined
-            ) {
-                map.setPaintProperty(
-                    layer.id,
-                    "line-opacity",
-                    0.96
-                );
-            }
+            });
 
-        });
+            // Make map lines more visible
+            map.getStyle().layers.forEach(layer => {
 
-        let frameIndex = 0;
+                if (
+                    layer.type === "line" &&
+                    layer.paint &&
+                    map.getPaintProperty(
+                        layer.id,
+                        "line-opacity"
+                    ) !== undefined
+                ) {
 
-        window.skyPanelRadarTimer =
-            setInterval(() => {
+                    map.setPaintProperty(
+                        layer.id,
+                        "line-opacity",
+                        0.96
+                    );
 
-                frameIndex =
-                    (frameIndex + 1) % frames.length;
+                }
 
-                map.getSource("noaa-radar").setTiles([
-                    radarTileUrl(frames[frameIndex])
-                ]);
+            });
 
-            }, 1400);
+            let frameIndex = frames.length - 1;
+
+            // Animate through the available radar frames.
+            window.skyPanelRadarTimer =
+                setInterval(() => {
+
+                    frameIndex =
+                        (frameIndex + 1) % frames.length;
+
+                    map.getSource(
+                        "librewxr-radar"
+                    ).setTiles([
+                        radarTileUrl(
+                            frames[frameIndex]
+                        )
+                    ]);
+
+                }, 1600);
+
+            console.log(
+                "LibreWXR radar loaded:",
+                frames.length,
+                "frames"
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                "LibreWXR radar failed:",
+                error
+            );
+
+        }
 
     });
 
