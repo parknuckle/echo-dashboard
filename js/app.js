@@ -557,17 +557,14 @@ function loadRadar() {
             const frames =
                 radarFrames.slice(-13);
 
-            function radarTileUrl(frame) {
+          function radarTileUrl(frame) {
 
-                const timestamp =
-                    frame.time;
-
-                return (
-                    "https://api.librewxr.net/v2/radar/" +
-                    timestamp +
-                    "/512/{z}/{x}/{y}/10/1_1.png"
-                );
-            }
+    return (
+        "https://api.librewxr.net" +
+        frame.path +
+        "/512/{z}/{x}/{y}/10/1_1.png"
+    );
+}
 
             map.addSource("librewxr-radar", {
                 type: "raster",
